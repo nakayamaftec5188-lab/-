@@ -852,6 +852,20 @@ input, select { font-family: inherit; }
   max-width: 90%;
 }
 .toast.show { opacity: 1; }
+  /* ボタンの見た目を整える設定です */
+.hdr-back-btn {
+  background: rgba(255,255,255,0.2); /* 半透明の白 */
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  color: #fff;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+.hdr-back-btn:active {
+  background: rgba(255,255,255,0.4); /* 押した時に少し明るくなる */
+}
 </style>
 </head>
 <body>
@@ -870,6 +884,10 @@ input, select { font-family: inherit; }
 <!-- 現場選択 -->
 <div class="scr hidden" id="screen-site">
   <div class="hdr">
+  <!-- ここを追加：最初の画面に戻るボタン -->
+  <button class="hdr-back-btn" onclick="showScreen('screen-name')">← ログアウト</button>
+  <div class="t1">現場を選択</div>
+</div>
     <div class="hdr-l">
       <div class="t1">現場を選択</div>
       <div class="t2" id="site-sub"></div>
@@ -933,7 +951,11 @@ input, select { font-family: inherit; }
 
 <!-- メイン -->
 <div class="scr hidden" id="screen-main">
-  <div class="hdr">
+ <div class="hdr">
+  <!-- ここを追加：現場選択に戻るボタン -->
+  <button class="hdr-back-btn" onclick="showScreen('screen-site')">← 現場選択</button>
+  <div class="t1">工具管理</div>
+</div>
     <div class="hdr-l">
       <div class="t1">現場工具管理</div>
       <div class="t2" id="hdr-site"></div>
