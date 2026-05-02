@@ -1,0 +1,2500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>現場工具管理</title>
+<style>
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+  background: #f0f4f8;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; }
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #f0f4f8;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* スクリーン管理 */
+.scr {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #f0f4f8;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10;
+}
+.scr.hidden { display: none; }
+
+/* ヘッダー */
+.hdr {
+  background: #1a56db;
+  padding: 12px 14px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.hdr-l { color: #fff; }
+.hdr-l .t1 { font-size: 15px; font-weight: 600; }
+.hdr-l .t2 { font-size: 10px; opacity: 0.75; margin-top: 2px; }
+.hdr-back, .hdr-user {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 16px;
+  padding: 5px 11px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.hdr-user .av {
+  width: 20px; height: 20px;
+  background: #fff;
+  color: #1a56db;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  margin-right: 5px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+/* ログイン画面 */
+.login-top {
+  background: #1a56db;
+  padding: 40px 20px 28px;
+  text-align: center;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.login-top .icon { font-size: 30px; margin-bottom: 8px; }
+.login-top .ttl { font-size: 17px; font-weight: 700; color: #fff; }
+.login-top .sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.login-list {
+  -webkit-flex: 1;
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+.member-btn {
+  width: 100%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.member-av {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  margin-right: 12px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.member-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  -webkit-flex: 1;
+  flex: 1;
+}
+.arrow-r { color: #cbd5e1; font-size: 18px; }
+
+/* 現場リスト */
+.site-list {
+  -webkit-flex: 1;
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+.site-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 15px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.site-card-body {
+  -webkit-flex: 1;
+  flex: 1;
+}
+.site-name-row {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.site-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.role-badge {
+  font-size: 10px;
+  background: #e8f0ff;
+  color: #1241a8;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-left: 7px;
+}
+.site-meta {
+  font-size: 11px;
+  color: #64748b;
+}
+.warn-text { color: #dc2626; font-weight: 600; }
+
+.add-btn {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+}
+
+/* メイン画面 */
+.main-body {
+  -webkit-flex: 1;
+  flex: 1;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+.site-tabs {
+  display: -webkit-flex;
+  display: flex;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.site-tabs::-webkit-scrollbar { display: none; }
+.site-tab {
+  padding: 9px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.site-tab.active {
+  color: #1a56db;
+  border-bottom-color: #1a56db;
+}
+.content {
+  -webkit-flex: 1;
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  padding-bottom: 76px;
+}
+.bottom-tabs {
+  display: -webkit-flex;
+  display: flex;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.btab {
+  -webkit-flex: 1;
+  flex: 1;
+  text-align: center;
+  padding: 7px 0;
+  font-size: 9px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+.btab.active { color: #1a56db; }
+.btab-icon {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 2px;
+}
+.fab {
+  position: fixed;
+  bottom: 70px;
+  right: 16px;
+  max-width: calc(480px - 16px);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #f97316;
+  color: #fff;
+  font-size: 26px;
+  border: none;
+  cursor: pointer;
+  display: none;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  box-shadow: 0 3px 12px rgba(249,115,22,0.4);
+  z-index: 50;
+}
+
+/* 工具リスト（横並び） */
+.tool-row {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 7px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  cursor: pointer;
+}
+.tool-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  font-size: 28px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  margin-right: 11px;
+  overflow: hidden;
+  position: relative;
+}
+.tool-img img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tool-mid {
+  -webkit-flex: 1;
+  flex: 1;
+  min-width: 0;
+  margin-right: 10px;
+}
+.tool-cat {
+  display: inline-block;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.tool-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tool-note {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+.tool-hold {
+  font-size: 10px;
+  color: #f97316;
+  margin-top: 3px;
+  font-weight: 600;
+}
+.tool-right {
+  text-align: right;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.tool-right-lbl {
+  font-size: 9px;
+  color: #94a3b8;
+}
+.tool-qty {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.tool-qty.ok { color: #16a34a; }
+.tool-qty.danger { color: #dc2626; }
+.tool-qty.machine { color: #94a3b8; }
+.tool-tot {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* チップ */
+.chips {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.chip {
+  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  color: #64748b;
+  background: #fff;
+  margin: 0 5px 5px 0;
+  cursor: pointer;
+}
+.chip.active {
+  border-color: #1a56db;
+  color: #1a56db;
+  background: #e8f0ff;
+}
+
+/* 履歴カード */
+.hist-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 11px 12px;
+  margin-bottom: 6px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+.hist-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  font-size: 14px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  margin-right: 9px;
+}
+.hist-icon.out { background: #fff5f5; }
+.hist-icon.in { background: #f0fdf4; }
+.hist-mid {
+  -webkit-flex: 1;
+  flex: 1;
+  min-width: 0;
+}
+.hist-user {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.hist-action {
+  font-size: 12px;
+  color: #475569;
+  margin-top: 1px;
+}
+.hist-amt-out { color: #dc2626; font-weight: 700; }
+.hist-amt-in { color: #16a34a; font-weight: 700; }
+.hist-time {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.hist-note {
+  font-size: 10px;
+  background: #f8fafc;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-top: 3px;
+  display: inline-block;
+  color: #64748b;
+}
+.hist-right {
+  text-align: right;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+
+/* アラート */
+.alert-card {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+}
+.alert-img {
+  font-size: 26px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+.alert-img img {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.alert-mid {
+  -webkit-flex: 1;
+  flex: 1;
+}
+.alert-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.alert-site {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 1px;
+}
+.alert-num {
+  font-size: 24px;
+  font-weight: 700;
+  color: #dc2626;
+  text-align: right;
+}
+
+.unret-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+}
+
+/* 現場情報 */
+.site-info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 13px;
+  margin-bottom: 8px;
+}
+.site-info-card.current {
+  border: 2px solid #1a56db;
+}
+.site-info-card.normal {
+  border: 1px solid #e2e8f0;
+}
+.member-row {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.member-row:last-child { border-bottom: none; }
+.mr-av {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: 9px;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+
+/* 共通 */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 10px 2px 6px;
+}
+.row-header {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  align-items: center;
+  padding: 0 2px 9px;
+}
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: #94a3b8;
+}
+
+/* モーダル */
+.modal-bg {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  background: rgba(15,23,42,0.55);
+  z-index: 100;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+.modal-bg.show { display: -webkit-flex; display: flex; }
+.modal {
+  background: #fff;
+  width: 100%;
+  border-radius: 18px 18px 0 0;
+  padding: 18px 16px 24px;
+  max-height: 90%;
+  overflow-y: auto;
+}
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin: 0 auto 14px;
+}
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+.modal-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 14px;
+}
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  display: block;
+  margin-bottom: 4px;
+}
+.input {
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #f8fafc;
+  color: #1e293b;
+  margin-bottom: 12px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.input:focus { border-color: #1a56db; background: #fff; }
+.select {
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #f8fafc;
+  color: #1e293b;
+  margin-bottom: 12px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.modal-actions {
+  display: -webkit-flex;
+  display: flex;
+  margin-top: 4px;
+}
+.btn-cancel {
+  -webkit-flex: 1;
+  flex: 1;
+  padding: 11px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  margin-right: 8px;
+}
+.btn-primary {
+  -webkit-flex: 2;
+  flex: 2;
+  padding: 11px;
+  background: #1a56db;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-danger {
+  -webkit-flex: 1;
+  flex: 1;
+  padding: 11px;
+  background: #fff;
+  color: #dc2626;
+  border: 2px solid #dc2626;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  margin-right: 8px;
+}
+.detail-img {
+  width: 100%;
+  height: 170px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  font-size: 56px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.detail-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-area {
+  width: 100%;
+  height: 130px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  cursor: pointer;
+  margin-bottom: 14px;
+  overflow: hidden;
+  position: relative;
+  color: #94a3b8;
+}
+.photo-area img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.info-box {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 11px;
+  color: #92400e;
+  margin-bottom: 13px;
+}
+.action-row {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.btn-return {
+  -webkit-flex: 1;
+  flex: 1;
+  min-width: 80px;
+  padding: 11px;
+  background: #fff;
+  color: #1a56db;
+  border: 2px solid #1a56db;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+.btn-takeout {
+  -webkit-flex: 1;
+  flex: 1;
+  min-width: 80px;
+  padding: 11px;
+  background: #1a56db;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+.btn-small {
+  padding: 11px 13px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+/* トースト */
+.toast {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 20px;
+  white-space: nowrap;
+  opacity: 0;
+  -webkit-transition: opacity 0.25s;
+  transition: opacity 0.25s;
+  z-index: 200;
+  pointer-events: none;
+  max-width: 90%;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- 名前選択 -->
+<div class="scr" id="screen-name">
+  <div class="login-top">
+    <div class="icon">🔧</div>
+    <div class="ttl">現場工具管理</div>
+    <div class="sub">名前を選んでください</div>
+  </div>
+  <div class="login-list" id="name-list"></div>
+</div>
+
+<!-- 現場選択 -->
+<div class="scr hidden" id="screen-site">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="t1">現場を選択</div>
+      <div class="t2" id="site-sub"></div>
+    </div>
+    <button class="hdr-back" onclick="goToName()">← 戻る</button>
+  </div>
+  <div class="site-list" id="site-list"></div>
+</div>
+
+<!-- 管理者ダッシュボード -->
+<div class="scr hidden" id="screen-admin">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="t1">管理者メニュー</div>
+      <div class="t2">管理者でログイン中</div>
+    </div>
+    <button class="hdr-back" onclick="goToName()">← 戻る</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px">
+    <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:10px">管理メニュー</div>
+
+    <button onclick="openMembersModal()" style="width:100%;display:flex;align-items:center;padding:16px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:9px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+      <div style="width:42px;height:42px;border-radius:11px;background:#e8f0ff;color:#1241a8;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:13px;flex-shrink:0">👥</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700;color:#1e293b">メンバー管理</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px" id="admin-mem-count">追加・編集・削除</div>
+      </div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+
+    <button onclick="openSitesModal()" style="width:100%;display:flex;align-items:center;padding:16px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:9px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+      <div style="width:42px;height:42px;border-radius:11px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:13px;flex-shrink:0">📍</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700;color:#1e293b">現場管理</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px" id="admin-site-count">追加・編集・削除</div>
+      </div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+
+    <button onclick="openItemsAdmin()" style="width:100%;display:flex;align-items:center;padding:16px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:9px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+      <div style="width:42px;height:42px;border-radius:11px;background:#dcfce7;color:#166534;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:13px;flex-shrink:0">📦</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700;color:#1e293b">品目管理</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px" id="admin-item-count">全品目の編集</div>
+      </div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+
+    <div style="font-size:11px;font-weight:700;color:#64748b;margin:18px 0 10px">通常画面へ</div>
+
+    <button onclick="adminGoToSites()" style="width:100%;display:flex;align-items:center;padding:16px 14px;background:#1a56db;border:none;border-radius:14px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 2px 8px rgba(26,86,219,0.3)">
+      <div style="width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,0.2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:13px;flex-shrink:0">🏗️</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:700;color:#fff">工具管理画面へ</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px">在庫・履歴・アラートを確認</div>
+      </div>
+      <div style="color:rgba(255,255,255,0.6);font-size:20px">›</div>
+    </button>
+  </div>
+</div>
+
+<!-- メイン -->
+<div class="scr hidden" id="screen-main">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="t1">現場工具管理</div>
+      <div class="t2" id="hdr-site"></div>
+    </div>
+    <button class="hdr-user" onclick="openUserMenu()">
+      <div class="av" id="hdr-av">?</div>
+      <span id="hdr-uname">---</span>
+    </button>
+  </div>
+  <div class="main-body">
+    <div class="site-tabs" id="site-tabs"></div>
+    <div class="content" id="content"></div>
+    <div class="bottom-tabs">
+      <button class="btab active" id="btab0" onclick="switchTab(0)"><span class="btab-icon">📦</span>在庫</button>
+      <button class="btab" id="btab1" onclick="switchTab(1)"><span class="btab-icon">📋</span>履歴</button>
+      <button class="btab" id="btab2" onclick="switchTab(2)"><span class="btab-icon">⚠️</span>アラート</button>
+      <button class="btab" id="btab3" onclick="switchTab(3)"><span class="btab-icon">👷</span>現場</button>
+    </div>
+  </div>
+  <button class="fab" id="fab" onclick="onFabTap()">＋</button>
+</div>
+
+<!-- モーダル -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+// =========================================
+// データ
+// =========================================
+var members = [
+  {id:'m0', name:'管理者', admin:true},
+  {id:'m1', name:'山田 太郎', admin:false},
+  {id:'m2', name:'鈴木 一郎', admin:false},
+  {id:'m3', name:'田中 花子', admin:false},
+  {id:'m4', name:'佐藤 次郎', admin:false},
+  {id:'m5', name:'中村 健', admin:false},
+  {id:'m6', name:'高橋 誠', admin:false},
+  {id:'m7', name:'渡辺 博', admin:false},
+  {id:'m8', name:'小林 徹', admin:false},
+  {id:'m9', name:'加藤 剛', admin:false},
+  {id:'m10', name:'木村 直樹', admin:false}
+];
+
+var sites = [
+  {id:'s0', name:'新小松線 No.64', chief:'山田 太郎', leaders:['鈴木 一郎','田中 花子','']},
+  {id:'s1', name:'新小松線 No.65', chief:'佐藤 次郎', leaders:['中村 健','','']},
+  {id:'s2', name:'資材置き場', chief:'', leaders:['','','']}
+];
+
+var items = [
+  {id:'i1', name:'ペンチ', cat:'工具', site:'s0', unit:'本', total:20, qty:12, mach:false, note:'', photo:'🔧'},
+  {id:'i2', name:'電工ナイフ', cat:'工具', site:'s0', unit:'本', total:10, qty:3, mach:false, note:'', photo:'🔪'},
+  {id:'i3', name:'安全帯', cat:'保護具', site:'s0', unit:'個', total:15, qty:4, mach:false, note:'年次点検 2026/10', photo:'🦺'},
+  {id:'i4', name:'絶縁テープ', cat:'消耗品', site:'s0', unit:'巻', total:30, qty:2, mach:false, note:'', photo:'🎞️'},
+  {id:'i5', name:'チェーンブロック', cat:'機械', site:'s0', unit:'台', total:2, qty:1, mach:true, note:'1t×2台', photo:'⛓️'},
+  {id:'i6', name:'ハンマー', cat:'工具', site:'s1', unit:'本', total:8, qty:3, mach:false, note:'', photo:'🔨'},
+  {id:'i7', name:'ヘルメット', cat:'保護具', site:'s2', unit:'個', total:25, qty:20, mach:false, note:'', photo:'⛑️'}
+];
+
+var historyData = [
+  {ts:Date.now()-172800000, type:'out', iid:'i1', name:'ペンチ', site:'s0', amt:5, user:'鈴木 一郎', note:'', after:15},
+  {ts:Date.now()-86400000, type:'out', iid:'i1', name:'ペンチ', site:'s0', amt:3, user:'田中 花子', note:'資材搬入', after:12},
+  {ts:Date.now()-72000000, type:'out', iid:'i2', name:'電工ナイフ', site:'s0', amt:7, user:'山田 太郎', note:'緊急使用', after:3},
+  {ts:Date.now()-14400000, type:'in', iid:'i1', name:'ペンチ', site:'s0', amt:2, user:'鈴木 一郎', note:'', after:12},
+  {ts:Date.now()-7200000, type:'out', iid:'i3', name:'安全帯', site:'s0', amt:11, user:'渡辺 博', note:'', after:4}
+];
+
+// 状態
+var currentUser = null;
+var isAdmin = false;
+var currentSiteId = null;
+var siteIndex = 0;
+var tabIndex = 0;
+var filterCat = 'all';
+var pendingType = null;
+var pendingId = null;
+var editingId = null;
+var photoData = '';
+
+// =========================================
+// ユーティリティ
+// =========================================
+function makeId() {
+  return 'x' + Date.now().toString(36) + Math.floor(Math.random() * 1000);
+}
+
+function fmtFull(ts) {
+  var d = new Date(ts);
+  var y = d.getFullYear();
+  var m = d.getMonth() + 1;
+  var day = d.getDate();
+  var h = ('0' + d.getHours()).slice(-2);
+  var mi = ('0' + d.getMinutes()).slice(-2);
+  return y + '/' + m + '/' + day + ' ' + h + ':' + mi;
+}
+
+function fmtShort(ts) {
+  var d = new Date(ts);
+  var m = d.getMonth() + 1;
+  var day = d.getDate();
+  var h = ('0' + d.getHours()).slice(-2);
+  var mi = ('0' + d.getMinutes()).slice(-2);
+  return m + '/' + day + ' ' + h + ':' + mi;
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show';
+  if (t._timer) clearTimeout(t._timer);
+  t._timer = setTimeout(function() {
+    t.className = 'toast';
+  }, 2800);
+}
+
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-bg').className = 'modal-bg show';
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').className = 'modal-bg';
+}
+
+function showScreen(id) {
+  var screens = document.querySelectorAll('.scr');
+  for (var i = 0; i < screens.length; i++) {
+    screens[i].className = 'scr hidden';
+  }
+  document.getElementById(id).className = 'scr';
+}
+
+// 警告判定: 総保有数6以上 → 5以下で赤、5以下 → 警告なし
+function getStatus(item) {
+  if (item.mach || item.total <= 5) return 'machine';
+  if (item.qty <= 5) return 'danger';
+  return 'ok';
+}
+
+function findItem(id) {
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].id === id) return items[i];
+  }
+  return null;
+}
+
+function findSite(id) {
+  for (var i = 0; i < sites.length; i++) {
+    if (sites[i].id === id) return sites[i];
+  }
+  return null;
+}
+
+// 持出し中ユーザー
+function getHolders(itemId) {
+  var userMap = {};
+  var related = [];
+  for (var i = 0; i < historyData.length; i++) {
+    if (historyData[i].iid === itemId) related.push(historyData[i]);
+  }
+  related.sort(function(a, b) { return a.ts - b.ts; });
+  for (var i = 0; i < related.length; i++) {
+    userMap[related[i].user] = related[i];
+  }
+  var keys = Object.keys(userMap);
+  var result = [];
+  for (var i = 0; i < keys.length; i++) {
+    if (userMap[keys[i]].type === 'out') {
+      result.push(userMap[keys[i]]);
+    }
+  }
+  return result;
+}
+
+function getAvatarColor(i) {
+  var colors = [
+    ['#dbeafe', '#1e40af'],
+    ['#dcfce7', '#166534'],
+    ['#fef9c3', '#854d0e'],
+    ['#ede9fe', '#5b21b6'],
+    ['#ffedd5', '#9a3412'],
+    ['#fce7f3', '#9d174d'],
+    ['#f0fdf4', '#14532d'],
+    ['#fff7ed', '#7c2d12'],
+    ['#ecfdf5', '#065f46'],
+    ['#fdf4ff', '#7e22ce'],
+    ['#e0f2fe', '#0369a1']
+  ];
+  return colors[i % colors.length];
+}
+
+function getCatStyle(cat) {
+  if (cat === '工具') return 'background:#e8f0ff;color:#1241a8';
+  if (cat === '機械') return 'background:#f1f5f9;color:#475569';
+  if (cat === '保護具') return 'background:#f0fdf4;color:#166534';
+  if (cat === '消耗品') return 'background:#fff7ed;color:#9a3412';
+  return 'background:#fdf4ff;color:#7e22ce';
+}
+
+function getUniqueCats(list) {
+  var seen = {};
+  var result = ['all'];
+  for (var i = 0; i < list.length; i++) {
+    if (!seen[list[i].cat]) {
+      seen[list[i].cat] = true;
+      result.push(list[i].cat);
+    }
+  }
+  return result;
+}
+
+function isPhoto(p) {
+  return p && typeof p === 'string' && p.indexOf('data:') === 0;
+}
+
+// =========================================
+// 名前選択画面
+// =========================================
+function renderNameScreen() {
+  var html = '';
+  for (var i = 0; i < members.length; i++) {
+    var m = members[i];
+    var c = getAvatarColor(i);
+    var firstChar = m.name.charAt(0);
+    html += '<button class="member-btn" onclick="selectMember(\'' + m.id + '\')">';
+    html += '<div class="member-av" style="background:' + c[0] + ';color:' + c[1] + '">' + esc(firstChar) + '</div>';
+    html += '<div class="member-name">' + esc(m.name) + '</div>';
+    html += '<div class="arrow-r">›</div>';
+    html += '</button>';
+  }
+  document.getElementById('name-list').innerHTML = html;
+}
+
+function selectMember(memberId) {
+  var m = null;
+  for (var i = 0; i < members.length; i++) {
+    if (members[i].id === memberId) {
+      m = members[i];
+      break;
+    }
+  }
+  if (!m) return;
+  currentUser = m.name;
+  isAdmin = m.admin === true;
+  if (isAdmin) {
+    // 管理者は管理ダッシュボードへ
+    renderAdminDashboard();
+    showScreen('screen-admin');
+  } else {
+    // 一般ユーザーは現場選択へ
+    document.getElementById('site-sub').textContent = m.name + ' さん、現場を選んでください';
+    renderSiteScreen();
+    showScreen('screen-site');
+  }
+}
+
+function renderAdminDashboard() {
+  document.getElementById('admin-mem-count').textContent = members.length + '名 ・ 追加・編集・削除';
+  document.getElementById('admin-site-count').textContent = sites.length + '箇所 ・ 追加・編集・削除';
+  document.getElementById('admin-item-count').textContent = items.length + '品目 ・ 一括編集';
+}
+
+function adminGoToSites() {
+  document.getElementById('site-sub').textContent = currentUser + ' さん、現場を選んでください';
+  renderSiteScreen();
+  showScreen('screen-site');
+}
+
+function goToName() {
+  showScreen('screen-name');
+  renderNameScreen();
+}
+
+// =========================================
+// 現場選択画面
+// =========================================
+function renderSiteScreen() {
+  var html = '';
+  for (var i = 0; i < sites.length; i++) {
+    var s = sites[i];
+    var warnCount = 0;
+    var itemCount = 0;
+    for (var j = 0; j < items.length; j++) {
+      if (items[j].site === s.id) {
+        itemCount++;
+        if (getStatus(items[j]) === 'danger') warnCount++;
+      }
+    }
+    var role = '';
+    if (s.chief === currentUser) role = '現場責任者';
+    else if (s.leaders.indexOf(currentUser) >= 0) role = '班長';
+
+    html += '<div class="site-card" onclick="enterSite(\'' + s.id + '\')">';
+    html += '<div class="site-card-body">';
+    html += '<div class="site-name-row">';
+    html += '<div class="site-name">' + esc(s.name) + '</div>';
+    if (role) {
+      html += '<span class="role-badge">' + role + '</span>';
+    }
+    html += '</div>';
+    html += '<div class="site-meta">品目 ' + itemCount + '件';
+    if (warnCount > 0) {
+      html += ' ・ <span class="warn-text">⚠ ' + warnCount + '件不足</span>';
+    }
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="arrow-r">›</div>';
+    html += '</div>';
+  }
+  if (isAdmin) {
+    html += '<button class="add-btn" onclick="openNewSiteModal()">＋ 新しい現場を追加</button>';
+  }
+  document.getElementById('site-list').innerHTML = html;
+}
+
+function enterSite(siteId) {
+  currentSiteId = siteId;
+  for (var i = 0; i < sites.length; i++) {
+    if (sites[i].id === siteId) {
+      siteIndex = i;
+      break;
+    }
+  }
+  document.getElementById('hdr-uname').textContent = currentUser;
+  document.getElementById('hdr-av').textContent = currentUser.charAt(0);
+  document.getElementById('hdr-site').textContent = sites[siteIndex].name;
+  document.getElementById('fab').style.display = 'flex';
+  renderSiteTabs();
+  switchTab(0);
+  showScreen('screen-main');
+}
+
+// =========================================
+// 現場追加モーダル
+// =========================================
+function openNewSiteModal() {
+  var opts = '<option value="">（未設定）</option>';
+  for (var i = 0; i < members.length; i++) {
+    if (!members[i].admin) {
+      opts += '<option>' + esc(members[i].name) + '</option>';
+    }
+  }
+  var html = '';
+  html += '<div class="modal-title">新しい現場を追加</div>';
+  html += '<div class="modal-sub">現場名と担当者を設定してください</div>';
+  html += '<label class="label">現場名</label>';
+  html += '<input id="new-site-name" class="input" type="text" placeholder="例：新小松線 No.67">';
+  html += '<label class="label">現場責任者</label>';
+  html += '<select id="new-site-chief" class="select">' + opts + '</select>';
+  html += '<label class="label">班長 1</label>';
+  html += '<select id="new-site-l0" class="select">' + opts + '</select>';
+  html += '<label class="label">班長 2</label>';
+  html += '<select id="new-site-l1" class="select">' + opts + '</select>';
+  html += '<label class="label">班長 3</label>';
+  html += '<select id="new-site-l2" class="select">' + opts + '</select>';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="closeModal()">キャンセル</button>';
+  html += '<button class="btn-primary" onclick="saveNewSite()">追加</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function saveNewSite() {
+  var name = document.getElementById('new-site-name').value.trim();
+  if (!name) {
+    showToast('現場名を入力してください');
+    return;
+  }
+  sites.push({
+    id: makeId(),
+    name: name,
+    chief: document.getElementById('new-site-chief').value,
+    leaders: [
+      document.getElementById('new-site-l0').value,
+      document.getElementById('new-site-l1').value,
+      document.getElementById('new-site-l2').value
+    ]
+  });
+  closeModal();
+  showToast('現場「' + name + '」を追加しました');
+  renderSiteScreen();
+  renderSiteTabs();
+}
+
+// =========================================
+// メイン画面のタブ
+// =========================================
+function renderSiteTabs() {
+  var html = '';
+  for (var i = 0; i < sites.length; i++) {
+    var cls = (i === siteIndex) ? 'site-tab active' : 'site-tab';
+    html += '<div class="' + cls + '" onclick="changeSite(' + i + ')">' + esc(sites[i].name) + '</div>';
+  }
+  document.getElementById('site-tabs').innerHTML = html;
+  document.getElementById('hdr-site').textContent = sites[siteIndex].name;
+}
+
+function changeSite(i) {
+  siteIndex = i;
+  currentSiteId = sites[i].id;
+  filterCat = 'all';
+  renderSiteTabs();
+  renderContent();
+}
+
+function switchTab(i) {
+  tabIndex = i;
+  filterCat = 'all';
+  for (var j = 0; j < 4; j++) {
+    var b = document.getElementById('btab' + j);
+    if (b) b.className = (j === i) ? 'btab active' : 'btab';
+  }
+  renderContent();
+}
+
+function renderContent() {
+  if (tabIndex === 0) renderInventory();
+  else if (tabIndex === 1) renderHistory();
+  else if (tabIndex === 2) renderAlerts();
+  else renderSiteInfo();
+}
+
+// =========================================
+// FABボタン
+// =========================================
+function onFabTap() {
+  if (isAdmin) {
+    openItemEdit(null);
+  } else {
+    openSimpleAdd();
+  }
+}
+
+function openSimpleAdd() {
+  var html = '';
+  html += '<div class="modal-title">工具を追加</div>';
+  html += '<div class="modal-sub">見当たらない工具の名前を登録できます</div>';
+  html += '<div class="info-box">⚠️ 写真・数量の詳細は管理者が後で設定します</div>';
+  html += '<label class="label">工具名</label>';
+  html += '<input id="simple-name" class="input" type="text" placeholder="例：電工ドライバー">';
+  html += '<label class="label">単位（わかれば）</label>';
+  html += '<input id="simple-unit" class="input" type="text" placeholder="本・個・台" value="個">';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="closeModal()">キャンセル</button>';
+  html += '<button class="btn-primary" onclick="saveSimpleAdd()">追加</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function saveSimpleAdd() {
+  var name = document.getElementById('simple-name').value.trim();
+  if (!name) {
+    showToast('工具名を入力してください');
+    return;
+  }
+  var unit = document.getElementById('simple-unit').value.trim() || '個';
+  items.push({
+    id: makeId(),
+    name: name,
+    cat: '工具',
+    site: currentSiteId,
+    unit: unit,
+    total: 0,
+    qty: 0,
+    mach: false,
+    note: '※管理者が詳細設定予定',
+    photo: ''
+  });
+  closeModal();
+  showToast('📝 ' + name + ' を仮登録しました');
+  renderContent();
+}
+
+// =========================================
+// 在庫リスト
+// =========================================
+function renderInventory() {
+  var list = [];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].site === currentSiteId) list.push(items[i]);
+  }
+  var cats = getUniqueCats(list);
+  var filtered = (filterCat === 'all') ? list : list.filter(function(x) { return x.cat === filterCat; });
+
+  var html = '<div class="chips">';
+  for (var c = 0; c < cats.length; c++) {
+    var cls = (filterCat === cats[c]) ? 'chip active' : 'chip';
+    var label = (cats[c] === 'all') ? 'すべて' : esc(cats[c]);
+    html += '<div class="' + cls + '" onclick="setCatFilter(\'' + esc(cats[c]) + '\')">' + label + '</div>';
+  }
+  html += '</div>';
+
+  if (filtered.length === 0) {
+    html += '<div class="empty-state">';
+    html += '<div style="font-size:36px;margin-bottom:10px">📦</div>';
+    html += '<div style="font-size:12px;line-height:1.8">品目がありません';
+    html += '<br><span style="font-size:11px;color:#cbd5e1">＋ボタンから追加できます</span></div>';
+    html += '</div>';
+    document.getElementById('content').innerHTML = html;
+    return;
+  }
+
+  html += '<div class="row-header">';
+  html += '<span style="font-size:13px;font-weight:700;color:#1e293b">品目一覧</span>';
+  html += '<span style="font-size:11px;color:#94a3b8">' + filtered.length + '件</span>';
+  html += '</div>';
+
+  for (var i = 0; i < filtered.length; i++) {
+    var item = filtered[i];
+    var st = getStatus(item);
+    var holders = getHolders(item.id);
+    var imgContent;
+    if (isPhoto(item.photo)) {
+      imgContent = '<img src="' + item.photo + '" alt="">';
+    } else {
+      imgContent = esc(item.photo || '🔧');
+    }
+    html += '<div class="tool-row" onclick="openDetail(\'' + item.id + '\')">';
+    html += '<div class="tool-img">' + imgContent + '</div>';
+    html += '<div class="tool-mid">';
+    html += '<span class="tool-cat" style="' + getCatStyle(item.cat) + '">' + esc(item.cat) + '</span>';
+    html += '<div class="tool-name">' + esc(item.name) + '</div>';
+    if (item.note) html += '<div class="tool-note">' + esc(item.note) + '</div>';
+    if (holders.length > 0) html += '<div class="tool-hold">📤 ' + holders.length + '名持出中</div>';
+    html += '</div>';
+    html += '<div class="tool-right">';
+    html += '<div class="tool-right-lbl">残数/総数</div>';
+    html += '<div class="tool-qty ' + st + '">' + item.qty + '</div>';
+    html += '<div class="tool-tot">/ ' + item.total + ' ' + esc(item.unit) + '</div>';
+    html += '</div>';
+    html += '</div>';
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+function setCatFilter(cat) {
+  filterCat = cat;
+  renderContent();
+}
+
+// =========================================
+// 工具詳細
+// =========================================
+function openDetail(itemId) {
+  var item = findItem(itemId);
+  if (!item) return;
+  var st = getStatus(item);
+  var qcolor = (st === 'danger') ? '#dc2626' : (st === 'machine') ? '#94a3b8' : '#16a34a';
+  var holders = getHolders(itemId);
+
+  var imgHtml;
+  if (isPhoto(item.photo)) {
+    imgHtml = '<div class="detail-img"><img src="' + item.photo + '" alt=""></div>';
+  } else {
+    imgHtml = '<div class="detail-img">' + esc(item.photo || '🔧') + '</div>';
+  }
+
+  var holdHtml = '';
+  if (holders.length > 0) {
+    for (var i = 0; i < holders.length; i++) {
+      holdHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #f1f5f9">';
+      holdHtml += '<span style="font-size:12px;font-weight:600;color:#1e293b">📤 ' + esc(holders[i].user) + '</span>';
+      holdHtml += '<span style="font-size:10px;color:#64748b">' + fmtShort(holders[i].ts) + ' / ' + holders[i].amt + esc(item.unit) + '</span>';
+      holdHtml += '</div>';
+    }
+  } else {
+    holdHtml = '<span style="color:#94a3b8;font-size:12px">持出しなし</span>';
+  }
+
+  var html = '';
+  html += imgHtml;
+  html += '<div style="font-size:18px;font-weight:700;color:#1e293b;margin-bottom:5px">' + esc(item.name) + '</div>';
+  html += '<div style="margin-bottom:14px">';
+  html += '<span style="' + getCatStyle(item.cat) + ';padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">' + esc(item.cat) + '</span>';
+  if (item.note) html += '<span style="font-size:11px;color:#64748b;margin-left:6px">' + esc(item.note) + '</span>';
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;margin-bottom:12px">';
+  html += '<span style="font-size:12px;color:#64748b">残数 / 総保有数</span>';
+  html += '<span style="font-size:20px;font-weight:700;color:' + qcolor + '">' + item.qty + ' / ' + item.total + ' <span style="font-size:12px;color:#94a3b8">' + esc(item.unit) + '</span></span>';
+  html += '</div>';
+  html += '<div style="background:#f8fafc;border-radius:10px;padding:10px 12px;margin-bottom:14px">' + holdHtml + '</div>';
+  html += '<div class="action-row">';
+  html += '<button class="btn-return" onclick="openAdjust(\'in\', \'' + itemId + '\')">返却</button>';
+  html += '<button class="btn-takeout" onclick="openAdjust(\'out\', \'' + itemId + '\')">持出し</button>';
+  html += '<button class="btn-small" onclick="openItemHistory(\'' + itemId + '\')">履歴</button>';
+  if (isAdmin) {
+    html += '<button class="btn-small" onclick="openItemEdit(\'' + itemId + '\')">編集</button>';
+  }
+  html += '</div>';
+  showModal(html);
+}
+
+// =========================================
+// 持出し・返却
+// =========================================
+var qtyMode = 'quick'; // 'quick' or 'manual'
+var qtyValue = 1;
+
+function openAdjust(type, itemId) {
+  var item = findItem(itemId);
+  if (!item) return;
+  pendingType = type;
+  pendingId = itemId;
+  qtyMode = 'quick';
+  qtyValue = 1;
+  renderAdjustModal();
+}
+
+function renderAdjustModal() {
+  var item = findItem(pendingId);
+  if (!item) return;
+  var label = (pendingType === 'out') ? '持出し' : '返却';
+  var maxQty = (pendingType === 'out') ? item.qty : (item.total - item.qty);
+
+  var html = '';
+  html += '<div class="modal-title">' + label + '：' + esc(item.name) + '</div>';
+  html += '<div class="modal-sub">残数 ' + item.qty + ' / 総保有数 ' + item.total + ' ' + esc(item.unit) + '</div>';
+
+  // 現在の数量表示
+  var displayColor = (qtyValue > maxQty) ? '#dc2626' : '#1a56db';
+  html += '<div style="text-align:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:14px">';
+  html += '<div style="font-size:11px;color:#64748b;margin-bottom:5px">' + label + 'する数量</div>';
+  html += '<div style="font-size:42px;font-weight:700;color:' + displayColor + ';line-height:1">' + qtyValue + '<span style="font-size:18px;color:#94a3b8;margin-left:5px">' + esc(item.unit) + '</span></div>';
+  if (qtyValue > maxQty) {
+    html += '<div style="font-size:11px;color:#dc2626;margin-top:6px;font-weight:600">⚠ 上限を超えています（最大: ' + maxQty + esc(item.unit) + '）</div>';
+  }
+  html += '</div>';
+
+  if (qtyMode === 'quick') {
+    // ±ボタン
+    html += '<div style="display:flex;gap:8px;margin-bottom:12px">';
+    html += '<button onclick="adjQtyBy(-1)" style="flex:1;padding:13px;background:#fff;border:2px solid #e2e8f0;border-radius:10px;font-size:18px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit">−1</button>';
+    html += '<button onclick="adjQtyBy(1)" style="flex:1;padding:13px;background:#fff;border:2px solid #e2e8f0;border-radius:10px;font-size:18px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit">＋1</button>';
+    html += '</div>';
+
+    // クイック選択（5, 10, 15, 20, 25, 30, 50, 100）
+    html += '<div style="font-size:11px;color:#64748b;margin-bottom:8px;font-weight:600">クイック選択</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px">';
+    var quickValues = [1, 5, 10, 20, 30, 50, 75, 100];
+    for (var i = 0; i < quickValues.length; i++) {
+      var v = quickValues[i];
+      var isActive = (qtyValue === v);
+      var bg = isActive ? '#1a56db' : '#fff';
+      var color = isActive ? '#fff' : '#475569';
+      var border = isActive ? 'none' : '1px solid #e2e8f0';
+      html += '<button onclick="setQty(' + v + ')" style="padding:11px 0;background:' + bg + ';color:' + color + ';border:' + border + ';border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">' + v + '</button>';
+    }
+    html += '</div>';
+
+    // 100以上は手入力に切替
+    html += '<button onclick="switchToManual()" style="width:100%;padding:10px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;font-size:12px;color:#92400e;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px">📝 101以上を入力する</button>';
+  } else {
+    // 手入力モード（101以上）
+    html += '<label class="label">数量を直接入力（101以上）</label>';
+    html += '<input id="adj-qty-manual" class="input" type="number" min="1" value="' + qtyValue + '" style="font-size:18px;font-weight:700;text-align:center" oninput="onManualQtyInput(this.value)">';
+    html += '<button onclick="switchToQuick()" style="width:100%;padding:10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px">← クイック選択に戻る</button>';
+  }
+
+  html += '<label class="label">メモ（任意）</label>';
+  html += '<input id="adj-note" class="input" type="text" placeholder="例：午前作業" value="' + (window._adjNote || '') + '">';
+
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="closeAdjustModal()">キャンセル</button>';
+  html += '<button class="btn-primary" onclick="execAdjust()">' + label + 'する</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function setQty(v) {
+  qtyValue = v;
+  saveAdjNote();
+  renderAdjustModal();
+}
+
+function adjQtyBy(delta) {
+  qtyValue = Math.max(1, qtyValue + delta);
+  saveAdjNote();
+  renderAdjustModal();
+}
+
+function switchToManual() {
+  qtyMode = 'manual';
+  if (qtyValue < 101) qtyValue = 101;
+  saveAdjNote();
+  renderAdjustModal();
+}
+
+function switchToQuick() {
+  qtyMode = 'quick';
+  if (qtyValue > 100) qtyValue = 100;
+  saveAdjNote();
+  renderAdjustModal();
+}
+
+function saveAdjNote() {
+  var noteEl = document.getElementById('adj-note');
+  if (noteEl) window._adjNote = noteEl.value;
+}
+
+function onManualQtyInput(val) {
+  qtyValue = parseInt(val, 10) || 1;
+  if (qtyValue < 1) qtyValue = 1;
+  saveAdjNote();
+  // 表示部分のみ更新（全体再描画しない＝入力フォーカスを保持）
+  var item = findItem(pendingId);
+  if (!item) return;
+  var maxQty = (pendingType === 'out') ? item.qty : (item.total - item.qty);
+  var displayColor = (qtyValue > maxQty) ? '#dc2626' : '#1a56db';
+  // 数量表示を直接更新
+  var titleArea = document.querySelector('#modal-content > div:nth-child(3)');
+  if (titleArea) {
+    var html = '<div style="font-size:11px;color:#64748b;margin-bottom:5px">' + ((pendingType === 'out') ? '持出し' : '返却') + 'する数量</div>';
+    html += '<div style="font-size:42px;font-weight:700;color:' + displayColor + ';line-height:1">' + qtyValue + '<span style="font-size:18px;color:#94a3b8;margin-left:5px">' + esc(item.unit) + '</span></div>';
+    if (qtyValue > maxQty) {
+      html += '<div style="font-size:11px;color:#dc2626;margin-top:6px;font-weight:600">⚠ 上限を超えています（最大: ' + maxQty + esc(item.unit) + '）</div>';
+    }
+    titleArea.innerHTML = html;
+  }
+}
+
+function closeAdjustModal() {
+  window._adjNote = '';
+  closeModal();
+}
+
+function execAdjust() {
+  var item = findItem(pendingId);
+  if (!item) return;
+  // 手入力モードの場合は最新値を取得
+  if (qtyMode === 'manual') {
+    var manualEl = document.getElementById('adj-qty-manual');
+    if (manualEl) qtyValue = parseInt(manualEl.value, 10) || 0;
+  }
+  var amt = qtyValue;
+  var noteEl = document.getElementById('adj-note');
+  var note = noteEl ? noteEl.value.trim() : '';
+  if (amt <= 0) {
+    showToast('数量を入力してください');
+    return;
+  }
+  if (pendingType === 'out' && amt > item.qty) {
+    showToast('在庫が足りません（残：' + item.qty + item.unit + '）');
+    return;
+  }
+  if (pendingType === 'in' && amt > (item.total - item.qty)) {
+    showToast('返却数が多すぎます');
+    return;
+  }
+
+  if (pendingType === 'out') item.qty -= amt;
+  else item.qty += amt;
+
+  var now = new Date();
+  var dateStr = now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate();
+  var timeStr = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+
+  historyData.unshift({
+    ts: Date.now(),
+    type: pendingType,
+    iid: item.id,
+    name: item.name,
+    site: item.site,
+    amt: amt,
+    user: currentUser,
+    note: note,
+    after: item.qty
+  });
+
+  window._adjNote = '';
+  closeModal();
+  var icon = (pendingType === 'out') ? '📤' : '📥';
+  var verb = (pendingType === 'out') ? 'を持出し' : 'を返却';
+  showToast(icon + ' ' + dateStr + ' ' + timeStr + ' ' + currentUser + 'が' + item.name + ' ' + amt + item.unit + verb);
+  renderContent();
+}
+
+// =========================================
+// 工具別履歴
+// =========================================
+function openItemHistory(itemId) {
+  var item = findItem(itemId);
+  if (!item) return;
+  var hist = [];
+  for (var i = 0; i < historyData.length; i++) {
+    if (historyData[i].iid === itemId) hist.push(historyData[i]);
+  }
+
+  var html = '';
+  html += '<div class="modal-title">' + esc(item.name) + ' の履歴</div>';
+  html += '<div class="modal-sub">総保有数 ' + item.total + esc(item.unit) + ' ／ 現在残 ' + item.qty + esc(item.unit) + '</div>';
+
+  if (hist.length === 0) {
+    html += '<div style="text-align:center;padding:28px;color:#94a3b8;font-size:12px">履歴がありません</div>';
+  } else {
+    for (var i = 0; i < hist.length; i++) {
+      var h = hist[i];
+      var isOut = (h.type === 'out');
+      var icBg = isOut ? '#fff5f5' : '#f0fdf4';
+      var icon = isOut ? '📤' : '📥';
+      var verb = isOut ? '持出し' : '返却';
+      var sign = isOut ? '−' : '+';
+      var color = isOut ? '#dc2626' : '#16a34a';
+
+      html += '<div style="display:flex;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f1f5f9">';
+      html += '<div style="width:32px;height:32px;border-radius:50%;background:' + icBg + ';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-right:10px">' + icon + '</div>';
+      html += '<div style="flex:1">';
+      html += '<div style="font-size:13px;font-weight:700;color:#1e293b">' + esc(h.user) + '</div>';
+      html += '<div style="font-size:11px;color:#64748b;margin-top:1px">' + verb + ' ・ ' + fmtFull(h.ts) + '</div>';
+      if (h.note) html += '<div style="font-size:10px;background:#f8fafc;padding:2px 8px;border-radius:4px;margin-top:3px;display:inline-block;color:#64748b">' + esc(h.note) + '</div>';
+      html += '</div>';
+      html += '<div style="text-align:right;flex-shrink:0">';
+      html += '<div style="font-size:16px;font-weight:700;color:' + color + '">' + sign + h.amt + esc(item.unit) + '</div>';
+      html += '<div style="font-size:10px;color:#94a3b8">残 ' + h.after + '</div>';
+      html += '</div>';
+      html += '</div>';
+    }
+  }
+  html += '<div class="modal-actions" style="margin-top:16px">';
+  html += '<button class="btn-primary" style="flex:1" onclick="openDetail(\'' + itemId + '\')">← 戻る</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+// =========================================
+// 品目追加・編集（管理者のみ）
+// =========================================
+function openItemEdit(itemId) {
+  editingId = itemId;
+  var item = itemId ? findItem(itemId) : null;
+  var isNew = !item;
+
+  var siteOptions = '';
+  for (var i = 0; i < sites.length; i++) {
+    var sel;
+    if (item) {
+      sel = (item.site === sites[i].id) ? ' selected' : '';
+    } else {
+      sel = (sites[i].id === currentSiteId) ? ' selected' : '';
+    }
+    siteOptions += '<option value="' + sites[i].id + '"' + sel + '>' + esc(sites[i].name) + '</option>';
+  }
+
+  var catList = ['工具', '機械', '保護具', '消耗品', '電材', 'その他'];
+  var catOptions = '';
+  for (var i = 0; i < catList.length; i++) {
+    var sel = (item && item.cat === catList[i]) ? ' selected' : '';
+    catOptions += '<option' + sel + '>' + catList[i] + '</option>';
+  }
+
+  var curPhoto = (item && item.photo) ? item.photo : '';
+  photoData = curPhoto;
+
+  var photoPreview;
+  if (isPhoto(curPhoto)) {
+    photoPreview = '<img src="' + curPhoto + '" alt="">';
+  } else {
+    photoPreview = '<div><span style="font-size:28px">📷</span><div style="font-size:11px;margin-top:5px;font-weight:500">タップして写真を追加</div></div>';
+  }
+
+  var title = isNew ? '品目追加（管理者）' : '品目編集：' + esc(item.name);
+
+  var html = '';
+  html += '<div class="modal-title">' + title + '</div>';
+  html += '<div class="photo-area" id="photo-area" onclick="triggerPhoto()">' + photoPreview + '</div>';
+  html += '<input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)">';
+  html += '<label class="label">品目名</label>';
+  html += '<input id="im-name" class="input" type="text" value="' + (item ? esc(item.name) : '') + '" placeholder="例：ペンチ">';
+  html += '<label class="label">カテゴリ</label>';
+  html += '<select id="im-cat" class="select">' + catOptions + '</select>';
+  html += '<label class="label">現場</label>';
+  html += '<select id="im-site" class="select">' + siteOptions + '</select>';
+  html += '<label class="label">単位</label>';
+  html += '<input id="im-unit" class="input" type="text" value="' + (item ? esc(item.unit) : '本') + '" placeholder="本・個・台">';
+  html += '<label class="label">総保有数</label>';
+  html += '<input id="im-total" class="input" type="number" value="' + (item ? item.total : 10) + '">';
+  html += '<label class="label">現在の在庫数</label>';
+  html += '<input id="im-qty" class="input" type="number" value="' + (item ? item.qty : 10) + '">';
+  html += '<label style="display:flex;align-items:center;font-size:12px;font-weight:500;margin-bottom:14px;cursor:pointer;color:#1e293b">';
+  html += '<input type="checkbox" id="im-mach" style="width:16px;height:16px;margin-right:8px"' + (item && item.mach ? ' checked' : '') + '>';
+  html += '機械系（警告なし）</label>';
+  html += '<label class="label">備考</label>';
+  html += '<input id="im-note" class="input" type="text" value="' + (item ? esc(item.note || '') : '') + '" placeholder="例：点検期限 2026/12">';
+  html += '<div class="modal-actions">';
+  if (!isNew) {
+    html += '<button class="btn-danger" onclick="deleteItem()">削除</button>';
+  }
+  html += '<button class="btn-cancel" onclick="closeModal()">キャンセル</button>';
+  html += '<button class="btn-primary" onclick="saveItem()">' + (isNew ? '追加' : '保存') + '</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function triggerPhoto() {
+  var el = document.getElementById('photo-input');
+  if (el) el.click();
+}
+
+function handlePhotoSelect(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    photoData = ev.target.result;
+    var area = document.getElementById('photo-area');
+    if (area) {
+      area.innerHTML = '<img src="' + ev.target.result + '" alt="">';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveItem() {
+  var name = document.getElementById('im-name').value.trim();
+  if (!name) {
+    showToast('品目名を入力してください');
+    return;
+  }
+  var obj = {
+    id: editingId || makeId(),
+    name: name,
+    cat: document.getElementById('im-cat').value,
+    site: document.getElementById('im-site').value,
+    unit: document.getElementById('im-unit').value || '個',
+    total: parseInt(document.getElementById('im-total').value, 10) || 1,
+    qty: parseInt(document.getElementById('im-qty').value, 10) || 0,
+    mach: document.getElementById('im-mach').checked,
+    note: document.getElementById('im-note').value.trim(),
+    photo: photoData || ''
+  };
+  if (editingId) {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id === editingId) {
+        items[i] = obj;
+        break;
+      }
+    }
+    showToast('更新しました');
+  } else {
+    items.push(obj);
+    showToast('📦 ' + name + ' を追加しました');
+  }
+  photoData = '';
+  editingId = null;
+  closeModal();
+  renderContent();
+}
+
+var deleteConfirmId = null;
+var deleteConfirmType = null;
+var deleteConfirmTimer = null;
+
+function requestDelete(type, id, name) {
+  deleteConfirmType = type;
+  deleteConfirmId = id;
+  showDeleteConfirmModal(name);
+}
+
+function showDeleteConfirmModal(name) {
+  // 1段階目：警告画面
+  var html = '';
+  html += '<div style="text-align:center;padding:10px 0">';
+  html += '<div style="font-size:50px;margin-bottom:14px">⚠️</div>';
+  html += '<div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:8px">本当に削除しますか？</div>';
+  html += '<div style="font-size:13px;color:#64748b;margin-bottom:20px">「' + esc(name) + '」を削除します<br>この操作は取り消せません</div>';
+  html += '</div>';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="cancelDelete()">キャンセル</button>';
+  html += '<button class="btn-danger" style="flex:2" onclick="confirmDelete2nd(\'' + esc(name) + '\')">削除へ進む</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function confirmDelete2nd(name) {
+  // 2段階目：最終確認
+  var html = '';
+  html += '<div style="text-align:center;padding:10px 0">';
+  html += '<div style="font-size:50px;margin-bottom:14px">🗑️</div>';
+  html += '<div style="font-size:17px;font-weight:700;color:#dc2626;margin-bottom:8px">最終確認</div>';
+  html += '<div style="font-size:13px;color:#64748b;margin-bottom:20px">「' + esc(name) + '」を削除します<br><strong style="color:#dc2626">もう一度「削除する」を押すと削除されます</strong></div>';
+  html += '</div>';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="cancelDelete()">キャンセル</button>';
+  html += '<button style="flex:2;padding:12px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="executeDelete()">削除する</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function cancelDelete() {
+  deleteConfirmType = null;
+  deleteConfirmId = null;
+  // 元の画面に戻る
+  closeModal();
+}
+
+function executeDelete() {
+  if (deleteConfirmType === 'item') {
+    var newItems = [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id !== deleteConfirmId) newItems.push(items[i]);
+    }
+    items = newItems;
+    editingId = null;
+    showToast('品目を削除しました');
+    closeModal();
+    renderContent();
+  } else if (deleteConfirmType === 'member') {
+    var name = '';
+    for (var i = 0; i < members.length; i++) {
+      if (members[i].id === deleteConfirmId) { name = members[i].name; break; }
+    }
+    var newMembers = [];
+    for (var i = 0; i < members.length; i++) {
+      if (members[i].id !== deleteConfirmId) newMembers.push(members[i]);
+    }
+    members = newMembers;
+    for (var i = 0; i < sites.length; i++) {
+      if (sites[i].chief === name) sites[i].chief = '';
+      for (var j = 0; j < sites[i].leaders.length; j++) {
+        if (sites[i].leaders[j] === name) sites[i].leaders[j] = '';
+      }
+    }
+    showToast('メンバーを削除しました');
+    openMembersModal();
+  } else if (deleteConfirmType === 'site') {
+    var newSites = [];
+    for (var i = 0; i < sites.length; i++) {
+      if (sites[i].id !== deleteConfirmId) newSites.push(sites[i]);
+    }
+    sites = newSites;
+    var newItems = [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].site !== deleteConfirmId) newItems.push(items[i]);
+    }
+    items = newItems;
+    if (currentSiteId === deleteConfirmId && sites.length > 0) {
+      currentSiteId = sites[0].id;
+      siteIndex = 0;
+      renderSiteTabs();
+    }
+    showToast('現場を削除しました');
+    openSitesModal();
+  }
+  deleteConfirmType = null;
+  deleteConfirmId = null;
+}
+
+function deleteItem() {
+  var item = findItem(editingId);
+  if (!item) return;
+  requestDelete('item', editingId, item.name);
+}
+
+// =========================================
+// 履歴タブ
+// =========================================
+function renderHistory() {
+  var hist = [];
+  for (var i = 0; i < historyData.length; i++) {
+    if (historyData[i].site === currentSiteId) hist.push(historyData[i]);
+  }
+  var html = '<div class="row-header">';
+  html += '<span style="font-size:13px;font-weight:700;color:#1e293b">操作履歴</span>';
+  html += '<span style="font-size:11px;color:#94a3b8">' + hist.length + '件</span>';
+  html += '</div>';
+
+  if (hist.length === 0) {
+    html += '<div class="empty-state">';
+    html += '<div style="font-size:36px;margin-bottom:10px">📋</div>';
+    html += '<div style="font-size:12px">履歴がありません</div>';
+    html += '</div>';
+    document.getElementById('content').innerHTML = html;
+    return;
+  }
+
+  for (var i = 0; i < hist.length; i++) {
+    var h = hist[i];
+    var isOut = (h.type === 'out');
+    var unit = '';
+    var item = findItem(h.iid);
+    if (item) unit = item.unit;
+    var iconCls = isOut ? 'hist-icon out' : 'hist-icon in';
+    var icon = isOut ? '📤' : '📥';
+    var amtCls = isOut ? 'hist-amt-out' : 'hist-amt-in';
+    var sign = isOut ? '−' : '+';
+    var verb = isOut ? 'を持出し' : 'を返却';
+
+    html += '<div class="hist-card">';
+    html += '<div class="' + iconCls + '">' + icon + '</div>';
+    html += '<div class="hist-mid">';
+    html += '<div class="hist-user">' + esc(h.user) + '</div>';
+    html += '<div class="hist-action">' + esc(h.name) + ' <strong class="' + amtCls + '">' + sign + h.amt + esc(unit) + '</strong>' + verb + '</div>';
+    html += '<div class="hist-time">' + fmtFull(h.ts) + '</div>';
+    if (h.note) html += '<div class="hist-note">' + esc(h.note) + '</div>';
+    html += '</div>';
+    html += '<div class="hist-right">';
+    html += '<div style="font-size:10px;color:#94a3b8">残</div>';
+    html += '<div style="font-size:16px;font-weight:700;color:#1e293b">' + h.after + esc(unit) + '</div>';
+    html += '</div>';
+    html += '</div>';
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+// =========================================
+// アラートタブ
+// =========================================
+function renderAlerts() {
+  var dangerItems = [];
+  var unretItems = [];
+  for (var i = 0; i < items.length; i++) {
+    if (getStatus(items[i]) === 'danger') dangerItems.push(items[i]);
+    if (getHolders(items[i].id).length > 0) unretItems.push(items[i]);
+  }
+
+  if (dangerItems.length === 0 && unretItems.length === 0) {
+    var html = '<div class="empty-state" style="color:#16a34a">';
+    html += '<div style="font-size:36px;margin-bottom:10px">✅</div>';
+    html += '<div style="font-size:13px;font-weight:700">すべて正常です</div>';
+    html += '</div>';
+    document.getElementById('content').innerHTML = html;
+    return;
+  }
+
+  var html = '';
+  if (dangerItems.length > 0) {
+    html += '<div class="section-label">🔴 在庫不足（5個以下）</div>';
+    for (var i = 0; i < dangerItems.length; i++) {
+      var item = dangerItems[i];
+      var site = findSite(item.site);
+      var siteName = site ? site.name : '';
+      var imgPart;
+      if (isPhoto(item.photo)) {
+        imgPart = '<div class="alert-img"><img src="' + item.photo + '" alt=""></div>';
+      } else {
+        imgPart = '<div class="alert-img">' + esc(item.photo || '🔧') + '</div>';
+      }
+      html += '<div class="alert-card">';
+      html += imgPart;
+      html += '<div class="alert-mid">';
+      html += '<div class="alert-name">' + esc(item.name) + '</div>';
+      html += '<div class="alert-site">' + esc(siteName) + '</div>';
+      html += '</div>';
+      html += '<div>';
+      html += '<div class="alert-num">' + item.qty + '</div>';
+      html += '<div style="font-size:10px;color:#64748b;text-align:right">' + esc(item.unit) + '</div>';
+      html += '</div>';
+      html += '</div>';
+    }
+  }
+
+  if (unretItems.length > 0) {
+    html += '<div class="section-label">📤 持出し中（未返却）</div>';
+    for (var i = 0; i < unretItems.length; i++) {
+      var item = unretItems[i];
+      var holders = getHolders(item.id);
+      html += '<div class="unret-card">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      html += '<div style="font-size:13px;font-weight:700;color:#1e293b">' + esc(item.name) + '</div>';
+      html += '<span style="font-size:10px;background:#fff3e8;color:#c2410c;padding:2px 8px;border-radius:10px;font-weight:600">' + holders.length + '名持出中</span>';
+      html += '</div>';
+      for (var k = 0; k < holders.length; k++) {
+        var hd = holders[k];
+        html += '<div style="display:flex;align-items:center;padding:5px 0;border-top:1px solid #f1f5f9">';
+        html += '<div style="width:26px;height:26px;border-radius:50%;background:#e8f0ff;color:#1241a8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:8px">' + esc(hd.user.charAt(0)) + '</div>';
+        html += '<div style="flex:1">';
+        html += '<div style="font-size:12px;font-weight:700;color:#1e293b">' + esc(hd.user) + '</div>';
+        html += '<div style="font-size:10px;color:#94a3b8">' + fmtFull(hd.ts) + '</div>';
+        html += '</div>';
+        html += '<div style="font-size:13px;font-weight:700;color:#f97316">' + hd.amt + esc(item.unit) + '</div>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+// =========================================
+// 現場情報タブ
+// =========================================
+function renderSiteInfo() {
+  var html = '<div class="row-header">';
+  html += '<span style="font-size:13px;font-weight:700;color:#1e293b">現場・担当者</span>';
+  html += '</div>';
+  for (var i = 0; i < sites.length; i++) {
+    var s = sites[i];
+    var isCur = (s.id === currentSiteId);
+    var cls = isCur ? 'site-info-card current' : 'site-info-card normal';
+    html += '<div class="' + cls + '">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    html += '<div style="font-size:14px;font-weight:700;color:#1e293b">' + esc(s.name) + '</div>';
+    if (isCur) html += '<span style="font-size:10px;background:#e8f0ff;color:#1241a8;padding:2px 8px;border-radius:10px;font-weight:600">現在の現場</span>';
+    html += '</div>';
+    html += '<div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px">現場責任者</div>';
+    if (s.chief) {
+      html += '<div class="member-row">';
+      html += '<div class="mr-av" style="background:#fee2e2;color:#b91c1c">' + esc(s.chief.charAt(0)) + '</div>';
+      html += '<div><div style="font-size:12px;font-weight:600;color:#1e293b">' + esc(s.chief) + '</div>';
+      html += '<div style="font-size:10px;color:#94a3b8">現場責任者</div></div>';
+      html += '</div>';
+    } else {
+      html += '<div style="font-size:11px;color:#94a3b8;padding:4px 0;border-bottom:1px solid #f1f5f9">未設定</div>';
+    }
+    html += '<div style="font-size:10px;font-weight:700;color:#94a3b8;margin:9px 0 6px">班長</div>';
+    for (var j = 0; j < 3; j++) {
+      if (s.leaders[j]) {
+        html += '<div class="member-row">';
+        html += '<div class="mr-av" style="background:#dbeafe;color:#1e40af">' + esc(s.leaders[j].charAt(0)) + '</div>';
+        html += '<div><div style="font-size:12px;font-weight:600;color:#1e293b">' + esc(s.leaders[j]) + '</div>';
+        html += '<div style="font-size:10px;color:#94a3b8">班長 ' + (j + 1) + '</div></div>';
+        html += '</div>';
+      } else {
+        html += '<div class="member-row">';
+        html += '<div class="mr-av" style="background:#f1f5f9;color:#94a3b8;font-size:14px">―</div>';
+        html += '<div style="font-size:12px;color:#94a3b8">未設定（班長 ' + (j + 1) + '）</div>';
+        html += '</div>';
+      }
+    }
+    if (isAdmin) {
+      html += '<button onclick="openSiteEdit(' + i + ')" style="margin-top:10px;width:100%;padding:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;font-family:inherit;font-weight:500">編集</button>';
+    }
+    html += '</div>';
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+function openSiteEdit(idx) {
+  var s = sites[idx];
+  function makeSelect(id, val) {
+    var html = '<select id="' + id + '" class="select"><option value="">（未設定）</option>';
+    for (var i = 0; i < members.length; i++) {
+      if (!members[i].admin) {
+        var sel = (members[i].name === val) ? ' selected' : '';
+        html += '<option' + sel + '>' + esc(members[i].name) + '</option>';
+      }
+    }
+    return html + '</select>';
+  }
+
+  var html = '';
+  html += '<div class="modal-title">現場編集：' + esc(s.name) + '</div>';
+  html += '<label class="label">現場責任者</label>' + makeSelect('se-chief', s.chief);
+  html += '<label class="label">班長 1</label>' + makeSelect('se-l0', s.leaders[0]);
+  html += '<label class="label">班長 2</label>' + makeSelect('se-l1', s.leaders[1]);
+  html += '<label class="label">班長 3</label>' + makeSelect('se-l2', s.leaders[2]);
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="closeModal()">キャンセル</button>';
+  html += '<button class="btn-primary" onclick="saveSiteEdit(' + idx + ')">保存</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function saveSiteEdit(idx) {
+  sites[idx].chief = document.getElementById('se-chief').value;
+  sites[idx].leaders = [
+    document.getElementById('se-l0').value,
+    document.getElementById('se-l1').value,
+    document.getElementById('se-l2').value
+  ];
+  closeModal();
+  showToast('現場情報を更新しました');
+  renderContent();
+}
+
+// =========================================
+// ユーザーメニュー
+// =========================================
+function backFromAdminPanel() {
+  closeModal();
+  if (document.getElementById('screen-admin').className === 'scr') {
+    // 管理ダッシュボードから来た
+    renderAdminDashboard();
+  } else {
+    // メイン画面のユーザーメニューから来た
+    openUserMenu();
+  }
+}
+
+function openUserMenu() {
+  var s = sites[siteIndex];
+  var role;
+  if (isAdmin) role = '管理者';
+  else if (s && s.chief === currentUser) role = '現場責任者';
+  else if (s && s.leaders.indexOf(currentUser) >= 0) role = '班長';
+  else role = '一般ユーザー';
+
+  var c = getAvatarColor(0);
+  var firstChar = currentUser.charAt(0);
+
+  var html = '';
+  // ユーザー情報ヘッダー
+  html += '<div style="display:flex;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #f1f5f9">';
+  html += '<div style="width:44px;height:44px;border-radius:50%;background:' + c[0] + ';color:' + c[1] + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin-right:12px;flex-shrink:0">' + esc(firstChar) + '</div>';
+  html += '<div><div style="font-size:16px;font-weight:700;color:#1e293b">' + esc(currentUser) + '</div>';
+  html += '<div style="font-size:11px;color:#64748b;margin-top:2px">' + role + '</div></div>';
+  html += '</div>';
+
+  if (isAdmin) {
+    // 管理者メニュー
+    html += '<div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:8px">管理メニュー</div>';
+    html += '<button onclick="openMembersModal()" style="width:100%;display:flex;align-items:center;padding:14px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px;cursor:pointer;font-family:inherit;text-align:left">';
+    html += '<div style="width:36px;height:36px;border-radius:10px;background:#e8f0ff;color:#1241a8;display:flex;align-items:center;justify-content:center;font-size:18px;margin-right:12px;flex-shrink:0">👥</div>';
+    html += '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1e293b">メンバー管理</div>';
+    html += '<div style="font-size:11px;color:#64748b;margin-top:2px">' + members.length + '名 ・ 追加・編集・削除</div></div>';
+    html += '<div style="color:#cbd5e1;font-size:18px">›</div>';
+    html += '</button>';
+
+    html += '<button onclick="openSitesModal()" style="width:100%;display:flex;align-items:center;padding:14px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px;cursor:pointer;font-family:inherit;text-align:left">';
+    html += '<div style="width:36px;height:36px;border-radius:10px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:18px;margin-right:12px;flex-shrink:0">📍</div>';
+    html += '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1e293b">現場管理</div>';
+    html += '<div style="font-size:11px;color:#64748b;margin-top:2px">' + sites.length + '箇所 ・ 追加・編集・削除</div></div>';
+    html += '<div style="color:#cbd5e1;font-size:18px">›</div>';
+    html += '</button>';
+
+    html += '<button onclick="openItemsAdmin()" style="width:100%;display:flex;align-items:center;padding:14px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:18px;cursor:pointer;font-family:inherit;text-align:left">';
+    html += '<div style="width:36px;height:36px;border-radius:10px;background:#dcfce7;color:#166534;display:flex;align-items:center;justify-content:center;font-size:18px;margin-right:12px;flex-shrink:0">📦</div>';
+    html += '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1e293b">品目管理</div>';
+    html += '<div style="font-size:11px;color:#64748b;margin-top:2px">' + items.length + '品目 ・ 一括編集</div></div>';
+    html += '<div style="color:#cbd5e1;font-size:18px">›</div>';
+    html += '</button>';
+  }
+
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="closeModal()">閉じる</button>';
+  html += '<button class="btn-danger" onclick="doLogout()">ログアウト</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+// =========================================
+// 現場管理（管理者のみ）
+// =========================================
+function openSitesModal() {
+  var html = '';
+  html += '<div class="modal-title">現場管理</div>';
+  html += '<div class="modal-sub">現場の追加・編集ができます</div>';
+  html += '<div style="max-height:50vh;overflow-y:auto;margin-bottom:14px">';
+  for (var i = 0; i < sites.length; i++) {
+    var s = sites[i];
+    var itemCount = 0;
+    for (var j = 0; j < items.length; j++) {
+      if (items[j].site === s.id) itemCount++;
+    }
+    html += '<div style="display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f1f5f9">';
+    html += '<div style="width:36px;height:36px;border-radius:10px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:11px;flex-shrink:0">📍</div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="font-size:14px;font-weight:600;color:#1e293b">' + esc(s.name) + '</div>';
+    html += '<div style="font-size:11px;color:#64748b;margin-top:1px">';
+    html += s.chief ? '責任者: ' + esc(s.chief) : '責任者: 未設定';
+    html += ' ・ 品目 ' + itemCount + '件</div>';
+    html += '</div>';
+    html += '<button onclick="openSiteEdit(' + i + ')" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit;margin-right:5px">編集</button>';
+    html += '<button onclick="deleteSite(\'' + s.id + '\')" style="padding:6px 10px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit">削除</button>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<button class="btn-primary" style="width:100%;margin-bottom:10px" onclick="openNewSiteModal()">＋ 現場を追加</button>';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="backFromAdminPanel()">← 戻る</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function deleteSite(siteId) {
+  var site = findSite(siteId);
+  if (!site) return;
+  requestDelete('site', siteId, site.name);
+}
+
+// =========================================
+// 品目管理（管理者のみ）
+// =========================================
+function openItemsAdmin() {
+  var html = '';
+  html += '<div class="modal-title">品目管理</div>';
+  html += '<div class="modal-sub">全現場の品目を一覧・編集できます</div>';
+  html += '<div style="max-height:55vh;overflow-y:auto;margin-bottom:14px">';
+  if (items.length === 0) {
+    html += '<div style="text-align:center;padding:30px;color:#94a3b8;font-size:12px">品目がありません</div>';
+  } else {
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var site = findSite(item.site);
+      var siteName = site ? site.name : '（不明）';
+      var st = getStatus(item);
+      var qcolor = (st === 'danger') ? '#dc2626' : (st === 'machine') ? '#94a3b8' : '#16a34a';
+      var imgPart = isPhoto(item.photo)
+        ? '<img src="' + item.photo + '" style="width:42px;height:42px;border-radius:8px;object-fit:cover;margin-right:11px;flex-shrink:0">'
+        : '<div style="width:42px;height:42px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:22px;margin-right:11px;flex-shrink:0">' + esc(item.photo || '🔧') + '</div>';
+      html += '<div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9">';
+      html += imgPart;
+      html += '<div style="flex:1;min-width:0;margin-right:8px">';
+      html += '<div style="font-size:13px;font-weight:600;color:#1e293b">' + esc(item.name) + '</div>';
+      html += '<div style="font-size:10px;color:#64748b;margin-top:1px">' + esc(siteName) + ' ・ <span style="color:' + qcolor + ';font-weight:600">' + item.qty + '/' + item.total + esc(item.unit) + '</span></div>';
+      html += '</div>';
+      html += '<button onclick="openItemEditFromAdmin(\'' + item.id + '\')" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit">編集</button>';
+      html += '</div>';
+    }
+  }
+  html += '</div>';
+  html += '<button class="btn-primary" style="width:100%;margin-bottom:10px" onclick="openItemEdit(null)">＋ 品目を追加</button>';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="backFromAdminPanel()">← 戻る</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function openItemEditFromAdmin(itemId) {
+  // 編集後に品目管理に戻すフラグを立てる
+  fromAdmin = true;
+  openItemEdit(itemId);
+}
+
+var fromAdmin = false;
+
+// =========================================
+// メンバー管理（管理者のみ）
+// =========================================
+function openMembersModal() {
+  var html = '';
+  html += '<div class="modal-title">メンバー管理</div>';
+  html += '<div class="modal-sub">名前の編集・追加・削除ができます</div>';
+  html += '<div style="max-height:50vh;overflow-y:auto;margin-bottom:14px">';
+  for (var i = 0; i < members.length; i++) {
+    var m = members[i];
+    var c = getAvatarColor(i);
+    var firstChar = m.name.charAt(0);
+    html += '<div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9">';
+    html += '<div style="width:34px;height:34px;border-radius:50%;background:' + c[0] + ';color:' + c[1] + ';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-right:10px;flex-shrink:0">' + esc(firstChar) + '</div>';
+    html += '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1e293b">' + esc(m.name) + '</div>';
+    if (m.admin) html += '<div style="font-size:10px;color:#dc2626;font-weight:600">管理者</div>';
+    html += '</div>';
+    if (!m.admin) {
+      html += '<button onclick="openMemberEdit(\'' + m.id + '\')" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit;margin-right:5px">編集</button>';
+      html += '<button onclick="deleteMember(\'' + m.id + '\')" style="padding:6px 10px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit">削除</button>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<button class="btn-primary" style="width:100%;margin-bottom:10px" onclick="openMemberAdd()">＋ メンバーを追加</button>';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="backFromAdminPanel()">← 戻る</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function openMemberAdd() {
+  var html = '';
+  html += '<div class="modal-title">メンバー追加</div>';
+  html += '<div class="modal-sub">新しいメンバーの名前を入力してください</div>';
+  html += '<label class="label">名前</label>';
+  html += '<input id="mem-name" class="input" type="text" placeholder="例：田村 健">';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="openMembersModal()">戻る</button>';
+  html += '<button class="btn-primary" onclick="saveMemberAdd()">追加</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function saveMemberAdd() {
+  var name = document.getElementById('mem-name').value.trim();
+  if (!name) {
+    showToast('名前を入力してください');
+    return;
+  }
+  members.push({
+    id: makeId(),
+    name: name,
+    admin: false
+  });
+  showToast('👤 ' + name + ' を追加しました');
+  openMembersModal();
+}
+
+var editingMemberId = null;
+
+function openMemberEdit(memberId) {
+  editingMemberId = memberId;
+  var m = null;
+  for (var i = 0; i < members.length; i++) {
+    if (members[i].id === memberId) { m = members[i]; break; }
+  }
+  if (!m) return;
+  var html = '';
+  html += '<div class="modal-title">メンバー編集</div>';
+  html += '<div class="modal-sub">名前を変更できます</div>';
+  html += '<label class="label">名前</label>';
+  html += '<input id="mem-edit-name" class="input" type="text" value="' + esc(m.name) + '">';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-cancel" onclick="openMembersModal()">戻る</button>';
+  html += '<button class="btn-primary" onclick="saveMemberEdit()">保存</button>';
+  html += '</div>';
+  showModal(html);
+}
+
+function saveMemberEdit() {
+  var name = document.getElementById('mem-edit-name').value.trim();
+  if (!name) {
+    showToast('名前を入力してください');
+    return;
+  }
+  var oldName = '';
+  for (var i = 0; i < members.length; i++) {
+    if (members[i].id === editingMemberId) {
+      oldName = members[i].name;
+      members[i].name = name;
+      break;
+    }
+  }
+  // 現場の責任者・班長の名前も更新
+  if (oldName && oldName !== name) {
+    for (var i = 0; i < sites.length; i++) {
+      if (sites[i].chief === oldName) sites[i].chief = name;
+      for (var j = 0; j < sites[i].leaders.length; j++) {
+        if (sites[i].leaders[j] === oldName) sites[i].leaders[j] = name;
+      }
+    }
+  }
+  showToast('更新しました');
+  openMembersModal();
+}
+
+function deleteMember(memberId) {
+  var name = '';
+  for (var i = 0; i < members.length; i++) {
+    if (members[i].id === memberId) { name = members[i].name; break; }
+  }
+  if (!name) return;
+  requestDelete('member', memberId, name);
+}
+
+function doLogout() {
+  closeModal();
+  showScreen('screen-name');
+  renderNameScreen();
+}
+
+// =========================================
+// 初期化
+// =========================================
+renderNameScreen();
+</script>
+</body>
+</html>
