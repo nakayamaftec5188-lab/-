@@ -1053,8 +1053,9 @@ function saveTMEdit(el){
   var yomiChks=document.querySelectorAll('.kana-btn.active[data-k]');var yomisArr=Array.from(yomiChks).map(function(b){return b.dataset.k;});
   if(!yomisArr.length){toast('読みを1つ以上選択してください');return;}
   var newCat=document.getElementById('tme-cat').value||'工具';
-  t.name=name; t.cat=newCat; t.yomis=yomisArr; t.yomi=yomisArr[0]; t.unit=document.getElementById('tme-unit').value||'個'; t.total=parseInt(document.getElementById('tme-total').value)||0; t.photo=window._tmePhotoData||'';
-  if(oldName!==name||newCat){items.forEach(function(x){if(x.ref===id){x.name=name;x.cat=newCat;}});}
+  var newPhoto=window._tmePhotoData||t.photo||'';
+  t.name=name; t.cat=newCat; t.yomis=yomisArr; t.yomi=yomisArr[0]; t.unit=document.getElementById('tme-unit').value||'個'; t.total=parseInt(document.getElementById('tme-total').value)||0; t.photo=newPhoto;
+  items.forEach(function(x){if(x.ref===id){x.name=name;x.cat=newCat;x.photo=newPhoto;}});
   toast('更新しました'); window._tmePhotoData=''; renderTMModal();
 }
 function deleteTMFromBtn(el){var t=findTM(el.dataset.tmid);if(t)showDeleteConfirm('tm',el.dataset.tmid,t.name);}
