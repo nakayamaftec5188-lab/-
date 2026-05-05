@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>現場工具管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;background:#f0f4f8;min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select{font-family:inherit}
+.app{width:100%;max-width:480px;margin:0 auto}
+.scr{position:fixed;top:0;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:#f0f4f8;display:flex;flex-direction:column;overflow:hidden;z-index:10}
+.scr.hidden{display:none}
+.hdr{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hdr-l{color:#fff}
+.hdr-l .t1{font-size:15px;font-weight:600}
+.hdr-l .t2{font-size:10px;opacity:.75;margin-top:2px}
+.hdr-back,.hdr-user{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:16px;padding:5px 11px;color:#fff;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center}
+.hdr-user .av{width:20px;height:20px;background:#fff;border-radius:50%;font-size:10px;font-weight:700;margin-right:5px;display:flex;align-items:center;justify-content:center}
+.login-top{padding:40px 20px 28px;text-align:center;flex-shrink:0}
+.login-top .icon{font-size:30px;margin-bottom:8px}
+.login-top .ttl{font-size:17px;font-weight:700;color:#fff}
+.scrollable{flex:1;overflow-y:auto;padding:14px}
+.member-btn{width:100%;display:flex;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:7px;cursor:pointer;text-align:left}
+.member-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-right:12px;flex-shrink:0}
+.member-name{font-size:14px;font-weight:600;color:#1e293b;flex:1}
+.arrow-r{color:#cbd5e1;font-size:18px}
+.site-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 15px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center}
+.site-card-body{flex:1}
+.site-name-row{display:flex;align-items:center;margin-bottom:4px}
+.site-name{font-size:14px;font-weight:700;color:#1e293b}
+.role-badge{font-size:10px;background:#e8f0ff;color:#1241a8;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:7px}
+.site-meta{font-size:11px;color:#64748b}
+.warn-text{color:#dc2626;font-weight:600}
+.add-btn{width:100%;padding:12px;background:#fff;border:2px dashed #cbd5e1;border-radius:12px;font-size:13px;color:#64748b;cursor:pointer;font-family:inherit;margin-top:4px}
+.main-body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.site-tabs{display:flex;background:#fff;border-bottom:1px solid #e2e8f0;overflow-x:auto;flex-shrink:0}
+.site-tabs::-webkit-scrollbar{display:none}
+.site-tab{padding:9px 14px;font-size:11px;font-weight:600;color:#94a3b8;white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;flex-shrink:0}
+.site-tab.active{color:#1a56db;border-bottom-color:#1a56db}
+.content{flex:1;overflow-y:auto;padding:10px;padding-bottom:76px}
+.bottom-tabs{display:flex;background:#fff;border-top:1px solid #e2e8f0;flex-shrink:0}
+.btab{flex:1;text-align:center;padding:7px 0;font-size:9px;font-weight:600;color:#94a3b8;cursor:pointer;border:none;background:none;font-family:inherit}
+.btab.active{color:#1a56db}
+.btab-icon{font-size:18px;display:block;margin-bottom:2px}
+.fab{position:fixed;bottom:70px;right:16px;max-width:calc(480px - 16px);width:50px;height:50px;border-radius:50%;background:#f97316;color:#fff;font-size:26px;border:none;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(249,115,22,.4);z-index:50}
+.tool-row{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;cursor:pointer}
+.tool-img{width:60px;height:60px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;margin-right:11px;overflow:hidden;position:relative}
+.tool-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.tool-mid{flex:1;min-width:0;margin-right:10px}
+.tool-cat{display:inline-block;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;margin-bottom:3px}
+.tool-name{font-size:14px;font-weight:700;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tool-note{font-size:10px;color:#94a3b8;margin-top:1px}
+.tool-hold{font-size:10px;color:#f97316;margin-top:3px;font-weight:600}
+.tool-right{text-align:right;flex-shrink:0}
+.tool-qty{font-size:22px;font-weight:700;line-height:1.1}
+.tool-qty.ok{color:#16a34a}
+.tool-qty.danger{color:#dc2626}
+.tool-qty.machine{color:#94a3b8}
+.chips{display:flex;flex-wrap:wrap;margin-bottom:10px}
+.chip{padding:5px 11px;font-size:11px;font-weight:500;border:1px solid #e2e8f0;border-radius:20px;color:#64748b;background:#fff;margin:0 5px 5px 0;cursor:pointer}
+.chip.active{border-color:#1a56db;color:#1a56db;background:#e8f0ff}
+.hist-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:11px 12px;margin-bottom:6px;display:flex;align-items:flex-start}
+.alert-card{background:#fff5f5;border:1px solid #fecaca;border-radius:12px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center}
+.unret-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:11px 13px;margin-bottom:7px}
+.section-label{font-size:10px;font-weight:700;color:#64748b;padding:10px 2px 6px}
+.row-header{display:flex;justify-content:space-between;align-items:center;padding:0 2px 9px}
+.empty-state{text-align:center;padding:50px 20px;color:#94a3b8}
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:rgba(15,23,42,.55);z-index:100;align-items:flex-end}
+.modal-bg.show{display:flex}
+.modal{background:#fff;width:100%;border-radius:18px 18px 0 0;padding:18px 16px 34px;max-height:90vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:#e2e8f0;border-radius:4px;margin:0 auto 14px}
+.modal-title{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:4px}
+.modal-sub{font-size:11px;color:#64748b;margin-bottom:14px}
+.lbl{font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px}
+.inp{width:100%;padding:10px 11px;border:1px solid #e2e8f0;border-radius:10px;font-size:16px;background:#f8fafc;color:#1e293b;margin-bottom:12px;outline:none;-webkit-appearance:none}
+.inp:focus{border-color:#1a56db;background:#fff}
+.sel{width:100%;padding:10px 11px;border:1px solid #e2e8f0;border-radius:10px;font-size:16px;background:#f8fafc;color:#1e293b;margin-bottom:12px;outline:none;-webkit-appearance:none}
+.modal-actions{display:flex;gap:8px;margin-top:4px}
+.btn-cancel{flex:1;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;color:#475569;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-primary{flex:2;padding:11px;background:#1a56db;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-danger{flex:1;padding:11px;background:#fff;color:#dc2626;border:2px solid #dc2626;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500}
+.btn-full{width:100%;padding:11px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px}
+.detail-img{width:100%;height:170px;border-radius:12px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:14px;overflow:hidden}
+.detail-img img{width:100%;height:100%;object-fit:cover}
+.photo-area{width:100%;height:130px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;margin-bottom:14px;overflow:hidden;position:relative;color:#94a3b8}
+.photo-area img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.action-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.btn-return{flex:1;min-width:80px;padding:11px;background:#fff;color:#1a56db;border:2px solid #1a56db;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-takeout{flex:1;min-width:80px;padding:11px;background:#1a56db;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-sm{padding:11px 13px;background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:12px;cursor:pointer;font-family:inherit}
+.qty-display{text-align:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:14px}
+.qty-big{font-size:42px;font-weight:700;line-height:1}
+.qty-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.qty-btn{padding:11px 0;background:#fff;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.qty-btn.active{background:#1a56db;color:#fff;border:none}
+.kana-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.kana-btn{padding:5px 9px;font-size:12px;font-weight:600;border:1px solid #e2e8f0;border-radius:20px;color:#64748b;background:#fff;cursor:pointer;font-family:inherit}
+.kana-btn.active{background:#1a56db;color:#fff;border-color:#1a56db}
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:11px;font-weight:600;padding:10px 18px;border-radius:20px;white-space:nowrap;opacity:0;transition:opacity .25s;z-index:200;pointer-events:none;max-width:90%}
+.toast.show{opacity:1}
+.admin-btn{width:100%;display:flex;align-items:center;padding:16px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:9px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.admin-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:13px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- 名前選択 -->
+<div class="scr" id="screen-name">
+  <div class="login-top hdr-bg">
+    <div class="icon">🔧</div>
+    <div class="ttl">現場工具管理</div>
+  </div>
+  <div class="scrollable" id="name-list"></div>
+</div>
+
+<!-- 現場選択 -->
+<div class="scr hidden" id="screen-site">
+  <div class="hdr hdr-bg">
+    <div class="hdr-l"><div class="t1">現場を選択</div><div class="t2" id="site-sub"></div></div>
+    <button class="hdr-back" onclick="goToName()">← 戻る</button>
+  </div>
+  <div class="scrollable" id="site-list"></div>
+</div>
+
+<!-- 管理者 -->
+<div class="scr hidden" id="screen-admin">
+  <div class="hdr hdr-bg">
+    <div class="hdr-l"><div class="t1">管理者メニュー</div><div class="t2">管理者でログイン中</div></div>
+    <button class="hdr-back" onclick="goToName()">← 戻る</button>
+  </div>
+  <div class="scrollable">
+    <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:10px">管理メニュー</div>
+    <button class="admin-btn" onclick="openMembersModal()">
+      <div class="admin-icon" style="background:#e8f0ff;color:#1241a8">👥</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1e293b">メンバー管理</div><div style="font-size:11px;color:#64748b;margin-top:2px" id="cnt-mem">追加・編集・削除</div></div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+    <button class="admin-btn" onclick="openSitesModal()">
+      <div class="admin-icon" style="background:#fef3c7;color:#92400e">📍</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1e293b">現場管理</div><div style="font-size:11px;color:#64748b;margin-top:2px" id="cnt-site">追加・編集・削除</div></div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+    <button class="admin-btn" onclick="openToolMasterModal()">
+      <div class="admin-icon" style="background:#dcfce7;color:#166534">🔧</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1e293b">工具管理</div><div style="font-size:11px;color:#64748b;margin-top:2px" id="cnt-tool">全社工具の総数管理</div></div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+    <button class="admin-btn" onclick="openItemsAdmin()">
+      <div class="admin-icon" style="background:#e0f2fe;color:#0369a1">📦</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1e293b">品目管理</div><div style="font-size:11px;color:#64748b;margin-top:2px" id="cnt-item">現場別の在庫編集</div></div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+    <button class="admin-btn" onclick="openAppSettings()">
+      <div class="admin-icon" style="background:#f3e8ff;color:#7e22ce">⚙️</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1e293b">アプリ設定</div><div style="font-size:11px;color:#64748b;margin-top:2px">タイトル・色・背景画像</div></div>
+      <div style="color:#cbd5e1;font-size:20px">›</div>
+    </button>
+    <div style="font-size:11px;font-weight:700;color:#64748b;margin:18px 0 10px">通常画面へ</div>
+    <button class="admin-btn" style="background:#1a56db;border:none;box-shadow:0 2px 8px rgba(26,86,219,.3)" onclick="adminGoToSites()">
+      <div class="admin-icon" style="background:rgba(255,255,255,.2);color:#fff">🏗️</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#fff">工具管理画面へ</div><div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:2px">在庫・履歴・アラートを確認</div></div>
+      <div style="color:rgba(255,255,255,.5);font-size:20px">›</div>
+    </button>
+  </div>
+</div>
+
+<!-- メイン -->
+<div class="scr hidden" id="screen-main">
+  <div class="hdr hdr-bg">
+    <div class="hdr-l"><div class="t1">現場工具管理</div><div class="t2" id="hdr-site"></div></div>
+    <button class="hdr-user" onclick="openUserMenu()">
+      <div class="av" id="hdr-av" style="color:#1a56db">?</div>
+      <span id="hdr-uname">---</span>
+    </button>
+  </div>
+  <div class="main-body">
+    <div class="site-tabs" id="site-tabs"></div>
+    <div class="content" id="content"></div>
+    <div class="bottom-tabs">
+      <button class="btab active" id="btab0" onclick="switchTab(0)"><span class="btab-icon">📦</span>在庫</button>
+      <button class="btab" id="btab1" onclick="switchTab(1)"><span class="btab-icon">📋</span>履歴</button>
+      <button class="btab" id="btab2" onclick="switchTab(2)"><span class="btab-icon">⚠️</span>アラート</button>
+      <button class="btab" id="btab3" onclick="switchTab(3)"><span class="btab-icon">👷</span>現場</button>
+    </div>
+  </div>
+  <button class="fab" id="fab" onclick="onFabTap()">＋</button>
+</div>
+
+<!-- モーダル -->
+<div class="modal-bg" id="modal-bg" onclick="onModalBgClick(event)">
+  <div class="modal" id="modal-inner">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ============================================================
+// データ
+// ============================================================
+var cfg = {title:'現場工具管理', color:'#1a56db', bg:''};
+var GOJUON = ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん'];
+var TM = [
+  {id:'tm1',name:'ペンチ',yomi:'へ',unit:'本',total:20},
+  {id:'tm2',name:'電工ナイフ',yomi:'て',unit:'本',total:10},
+  {id:'tm3',name:'安全帯',yomi:'あ',unit:'個',total:15},
+  {id:'tm4',name:'絶縁テープ',yomi:'せ',unit:'巻',total:30},
+  {id:'tm5',name:'チェーンブロック',yomi:'ち',unit:'台',total:2},
+  {id:'tm6',name:'ハンマー',yomi:'は',unit:'本',total:8},
+  {id:'tm7',name:'ヘルメット',yomi:'へ',unit:'個',total:25},
+  {id:'tm8',name:'プライヤー',yomi:'ふ',unit:'本',total:12},
+  {id:'tm9',name:'スパナ',yomi:'す',unit:'本',total:20},
+  {id:'tm10',name:'ドライバー',yomi:'と',unit:'本',total:15}
+];
+var members = [
+  {id:'m0',name:'管理者',admin:true},
+  {id:'m1',name:'山田 太郎',admin:false},
+  {id:'m2',name:'鈴木 一郎',admin:false},
+  {id:'m3',name:'田中 花子',admin:false},
+  {id:'m4',name:'佐藤 次郎',admin:false},
+  {id:'m5',name:'中村 健',admin:false}
+];
+var sites = [
+  {id:'s0',name:'新小松線 No.64',chief:'山田 太郎',leaders:['鈴木 一郎','田中 花子','']},
+  {id:'s1',name:'新小松線 No.65',chief:'佐藤 次郎',leaders:['中村 健','','']},
+  {id:'s2',name:'資材置き場',chief:'',leaders:['','','']}
+];
+var items = [
+  {id:'i1',name:'ペンチ',cat:'工具',site:'s0',unit:'本',total:20,qty:12,mach:false,note:'',photo:'🔧',ref:'tm1'},
+  {id:'i2',name:'電工ナイフ',cat:'工具',site:'s0',unit:'本',total:10,qty:3,mach:false,note:'',photo:'🔪',ref:'tm2'},
+  {id:'i3',name:'安全帯',cat:'保護具',site:'s0',unit:'個',total:15,qty:4,mach:false,note:'年次点検 2026/10',photo:'🦺',ref:'tm3'},
+  {id:'i4',name:'絶縁テープ',cat:'消耗品',site:'s0',unit:'巻',total:30,qty:2,mach:false,note:'',photo:'🎞️',ref:'tm4'},
+  {id:'i5',name:'チェーンブロック',cat:'機械',site:'s0',unit:'台',total:2,qty:1,mach:true,note:'1t×2台',photo:'⛓️',ref:'tm5'},
+  {id:'i6',name:'ハンマー',cat:'工具',site:'s1',unit:'本',total:8,qty:3,mach:false,note:'',photo:'🔨',ref:'tm6'},
+  {id:'i7',name:'ヘルメット',cat:'保護具',site:'s2',unit:'個',total:25,qty:20,mach:false,note:'',photo:'⛑️',ref:'tm7'}
+];
+var hist = [
+  {ts:Date.now()-172800000,type:'out',iid:'i1',name:'ペンチ',site:'s0',amt:5,user:'鈴木 一郎',note:'',after:15},
+  {ts:Date.now()-86400000,type:'out',iid:'i1',name:'ペンチ',site:'s0',amt:3,user:'田中 花子',note:'資材搬入',after:12},
+  {ts:Date.now()-72000000,type:'out',iid:'i2',name:'電工ナイフ',site:'s0',amt:7,user:'山田 太郎',note:'緊急使用',after:3},
+  {ts:Date.now()-14400000,type:'in',iid:'i1',name:'ペンチ',site:'s0',amt:2,user:'鈴木 一郎',note:'',after:12},
+  {ts:Date.now()-7200000,type:'out',iid:'i3',name:'安全帯',site:'s0',amt:11,user:'渡辺 博',note:'',after:4}
+];
+
+// ============================================================
+// 状態
+// ============================================================
+var curUser=null, isAdmin=false, curSiteId=null, siteIdx=0, tabIdx=0;
+var filterCat='all', pendType=null, pendId=null, editId=null, photoData='';
+var delType=null, delId=null, editMemIdx=-1;
+var qMode='quick', qVal=1;
+var tmKana='', addKana='';
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function mkId(){return 'x'+Date.now().toString(36)+Math.floor(Math.random()*999);}
+function esc(s){if(s==null)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function fmtFull(ts){var d=new Date(ts);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function fmtShort(ts){var d=new Date(ts);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show';if(t._t)clearTimeout(t._t);t._t=setTimeout(function(){t.className='toast';},2800);}
+function showModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-bg').className='modal-bg show';}
+function closeModal(){document.getElementById('modal-bg').className='modal-bg';}
+function onModalBgClick(e){if(e.target===document.getElementById('modal-bg'))closeModal();}
+function showScreen(id){document.querySelectorAll('.scr').forEach(function(s){s.className='scr hidden';});document.getElementById(id).className='scr';}
+function getStatus(item){if(item.mach)return 'machine';if(item.qty<=5)return 'danger';return 'ok';}
+function findItem(id){return items.find(function(x){return x.id===id;})||null;}
+function findSite(id){return sites.find(function(x){return x.id===id;})||null;}
+function findTM(id){return TM.find(function(x){return x.id===id;})||null;}
+function getHolders(iid){
+  var um={};
+  hist.filter(function(h){return h.iid===iid;}).sort(function(a,b){return a.ts-b.ts;}).forEach(function(h){um[h.user]=h;});
+  return Object.values(um).filter(function(h){return h.type==='out';});
+}
+function AC(i){var c=[['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fef9c3','#854d0e'],['#ede9fe','#5b21b6'],['#ffedd5','#9a3412'],['#fce7f3','#9d174d'],['#f0fdf4','#14532d'],['#fff7ed','#7c2d12'],['#ecfdf5','#065f46'],['#fdf4ff','#7e22ce'],['#e0f2fe','#0369a1']];return c[i%c.length];}
+function catStyle(cat){if(cat==='工具')return 'background:#e8f0ff;color:#1241a8';if(cat==='機械')return 'background:#f1f5f9;color:#475569';if(cat==='保護具')return 'background:#f0fdf4;color:#166534';if(cat==='消耗品')return 'background:#fff7ed;color:#9a3412';return 'background:#fdf4ff;color:#7e22ce';}
+function uniqCats(list){var seen={},res=['all'];list.forEach(function(x){if(!seen[x.cat]){seen[x.cat]=true;res.push(x.cat);}});return res;}
+function isPhoto(p){return p&&p.indexOf('data:')===0;}
+function activeKanas(){var seen={};TM.forEach(function(t){seen[t.yomi]=true;});return Object.keys(seen).sort();}
+function applyStyle(){
+  document.querySelectorAll('.hdr-bg').forEach(function(el){
+    el.style.background = cfg.bg ? 'linear-gradient(135deg,rgba(0,0,0,.4),rgba(0,0,0,.55)),url('+cfg.bg+') center/cover' : cfg.color;
+  });
+  document.title = cfg.title;
+  var ttl = document.querySelector('.ttl');
+  if(ttl) ttl.textContent = cfg.title;
+}
+function updateCnts(){
+  document.getElementById('cnt-mem').textContent = members.length+'名 ・ 追加・編集・削除';
+  document.getElementById('cnt-site').textContent = sites.length+'箇所 ・ 追加・編集・削除';
+  document.getElementById('cnt-tool').textContent = TM.length+'種類 ・ 総数管理';
+  document.getElementById('cnt-item').textContent = items.length+'品目 ・ 現場別在庫編集';
+}
+
+// ============================================================
+// 名前選択
+// ============================================================
+function renderNameScreen(){
+  var h='';
+  members.forEach(function(m,i){
+    var c=AC(i);
+    h+='<button class="member-btn" data-idx="'+i+'" onclick="selectMember(this)">';
+    h+='<div class="member-av" style="background:'+c[0]+';color:'+c[1]+'">'+esc(m.name.charAt(0))+'</div>';
+    h+='<div class="member-name">'+esc(m.name)+'</div><div class="arrow-r">›</div></button>';
+  });
+  document.getElementById('name-list').innerHTML=h;
+}
+function selectMember(el){
+  var i=parseInt(el.dataset.idx);
+  var m=members[i]; if(!m)return;
+  curUser=m.name; isAdmin=!!m.admin;
+  if(isAdmin){updateCnts();showScreen('screen-admin');}
+  else{document.getElementById('site-sub').textContent=m.name+' さん、現場を選んでください';renderSiteScreen();showScreen('screen-site');}
+}
+function goToName(){showScreen('screen-name');renderNameScreen();}
+function adminGoToSites(){document.getElementById('site-sub').textContent=curUser+' さん、現場を選んでください';renderSiteScreen();showScreen('screen-site');}
+
+// ============================================================
+// 現場選択
+// ============================================================
+function renderSiteScreen(){
+  var h='';
+  sites.forEach(function(s,i){
+    var ic=items.filter(function(x){return x.site===s.id;}).length;
+    var wc=items.filter(function(x){return x.site===s.id&&getStatus(x)==='danger';}).length;
+    var role='';
+    if(s.chief===curUser)role='現場責任者';
+    else if(s.leaders.indexOf(curUser)>=0)role='班長';
+    h+='<div class="site-card" data-idx="'+i+'" onclick="enterSite(this)">';
+    h+='<div class="site-card-body"><div class="site-name-row"><div class="site-name">'+esc(s.name)+'</div>';
+    if(role)h+='<span class="role-badge">'+role+'</span>';
+    h+='</div><div class="site-meta">品目 '+ic+'件';
+    if(wc>0)h+=' ・ <span class="warn-text">⚠ '+wc+'件不足</span>';
+    h+='</div></div><div class="arrow-r">›</div></div>';
+  });
+  document.getElementById('site-list').innerHTML=h;
+}
+function enterSite(el){
+  var i=parseInt(el.dataset.idx);
+  siteIdx=i; curSiteId=sites[i].id;
+  document.getElementById('hdr-uname').textContent=curUser;
+  document.getElementById('hdr-av').textContent=curUser.charAt(0);
+  document.getElementById('hdr-site').textContent=sites[i].name;
+  document.getElementById('fab').style.display='flex';
+  renderSiteTabs(); switchTab(0); showScreen('screen-main');
+}
+
+// ============================================================
+// メイン画面
+// ============================================================
+function renderSiteTabs(){
+  var h='';
+  sites.forEach(function(s,i){h+='<div class="site-tab'+(i===siteIdx?' active':'')+'" data-idx="'+i+'" onclick="changeSite(this)">'+esc(s.name)+'</div>';});
+  document.getElementById('site-tabs').innerHTML=h;
+  document.getElementById('hdr-site').textContent=sites[siteIdx].name;
+}
+function changeSite(el){siteIdx=parseInt(el.dataset.idx);curSiteId=sites[siteIdx].id;filterCat='all';renderSiteTabs();renderContent();}
+function switchTab(i){tabIdx=i;filterCat='all';for(var j=0;j<4;j++){var b=document.getElementById('btab'+j);if(b)b.className=j===i?'btab active':'btab';}renderContent();}
+function renderContent(){if(tabIdx===0)renderInventory();else if(tabIdx===1)renderHistory();else if(tabIdx===2)renderAlerts();else renderSiteInfo();}
+function onFabTap(){if(isAdmin)openItemEdit(null);else openAddFromMaster();}
+
+// ============================================================
+// 在庫
+// ============================================================
+function renderInventory(){
+  var list=items.filter(function(x){return x.site===curSiteId;});
+  var cats=uniqCats(list);
+  var filtered=filterCat==='all'?list:list.filter(function(x){return x.cat===filterCat;});
+  var h='<div class="chips">';
+  cats.forEach(function(c){
+    var label=c==='all'?'すべて':esc(c);
+    h+='<div class="chip'+(filterCat===c?' active':'')+'" data-cat="'+esc(c)+'" onclick="setCatFilter(this)">'+label+'</div>';
+  });
+  h+='</div>';
+  if(!filtered.length){h+='<div class="empty-state"><div style="font-size:36px;margin-bottom:10px">📦</div><div style="font-size:12px">品目がありません<br><span style="font-size:11px;color:#cbd5e1">＋ボタンから追加</span></div></div>';document.getElementById('content').innerHTML=h;return;}
+  h+='<div class="row-header"><span style="font-size:13px;font-weight:700;color:#1e293b">品目一覧</span><span style="font-size:11px;color:#94a3b8">'+filtered.length+'件</span></div>';
+  filtered.forEach(function(item){
+    var st=getStatus(item), holders=getHolders(item.id);
+    var img=isPhoto(item.photo)?'<img src="'+item.photo+'" alt="">':esc(item.photo||'🔧');
+    h+='<div class="tool-row" data-id="'+item.id+'" onclick="openDetail(this)">';
+    h+='<div class="tool-img">'+img+'</div>';
+    h+='<div class="tool-mid"><span class="tool-cat" style="'+catStyle(item.cat)+'">'+esc(item.cat)+'</span>';
+    h+='<div class="tool-name">'+esc(item.name)+'</div>';
+    if(item.note)h+='<div class="tool-note">'+esc(item.note)+'</div>';
+    if(holders.length)h+='<div class="tool-hold">📤 '+holders.length+'名持出中</div>';
+    h+='</div><div class="tool-right"><div style="font-size:9px;color:#94a3b8">残数/総数</div><div class="tool-qty '+st+'">'+item.qty+'</div><div style="font-size:10px;color:#94a3b8">/ '+item.total+' '+esc(item.unit)+'</div></div></div>';
+  });
+  document.getElementById('content').innerHTML=h;
+}
+function setCatFilter(el){filterCat=el.dataset.cat;renderContent();}
+
+// ============================================================
+// 工具詳細
+// ============================================================
+function openDetail(el){
+  var id=el.dataset.id; openDetailById(id);
+}
+function openDetailById(itemId){
+  var item=findItem(itemId); if(!item)return;
+  var st=getStatus(item), qc=st==='danger'?'#dc2626':st==='machine'?'#94a3b8':'#16a34a';
+  var holders=getHolders(itemId);
+  var imgH=isPhoto(item.photo)?'<div class="detail-img"><img src="'+item.photo+'" alt=""></div>':'<div class="detail-img">'+esc(item.photo||'🔧')+'</div>';
+  var holdH='';
+  if(holders.length){holders.forEach(function(hd){holdH+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;font-weight:600;color:#1e293b">📤 '+esc(hd.user)+'</span><span style="font-size:10px;color:#64748b">'+fmtShort(hd.ts)+' / '+hd.amt+esc(item.unit)+'</span></div>';});}
+  else holdH='<span style="color:#94a3b8;font-size:12px">持出しなし</span>';
+  var h=imgH+'<div style="font-size:18px;font-weight:700;color:#1e293b;margin-bottom:5px">'+esc(item.name)+'</div>';
+  h+='<div style="margin-bottom:14px"><span style="'+catStyle(item.cat)+';padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">'+esc(item.cat)+'</span>';
+  if(item.note)h+='<span style="font-size:11px;color:#64748b;margin-left:6px">'+esc(item.note)+'</span>';
+  h+='</div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;margin-bottom:12px">';
+  h+='<span style="font-size:12px;color:#64748b">残数 / 総保有数</span>';
+  h+='<span style="font-size:20px;font-weight:700;color:'+qc+'">'+item.qty+' / '+item.total+' <span style="font-size:12px;color:#94a3b8">'+esc(item.unit)+'</span></span></div>';
+  h+='<div style="background:#f8fafc;border-radius:10px;padding:10px 12px;margin-bottom:14px">'+holdH+'</div>';
+  h+='<div class="action-row">';
+  h+='<button class="btn-return" data-id="'+itemId+'" data-type="in" onclick="openAdjustFromBtn(this)">返却</button>';
+  h+='<button class="btn-takeout" data-id="'+itemId+'" data-type="out" onclick="openAdjustFromBtn(this)">持出し</button>';
+  h+='<button class="btn-sm" data-id="'+itemId+'" onclick="openItemHistoryFromBtn(this)">履歴</button>';
+  if(isAdmin)h+='<button class="btn-sm" data-id="'+itemId+'" onclick="openItemEditFromBtn(this)">編集</button>';
+  h+='</div>';
+  h+='<button class="btn-full" style="background:#f1f5f9;color:#475569;margin-top:4px" onclick="closeModal()">閉じる</button>';
+  showModal(h);
+}
+function openAdjustFromBtn(el){openAdjust(el.dataset.type, el.dataset.id);}
+function openItemHistoryFromBtn(el){openItemHistory(el.dataset.id);}
+function openItemEditFromBtn(el){openItemEditById(el.dataset.id);}
+
+// ============================================================
+// 持出し・返却
+// ============================================================
+function openAdjust(type,itemId){
+  var item=findItem(itemId); if(!item)return;
+  pendType=type; pendId=itemId; qMode='quick'; qVal=1;
+  window._adjNote='';
+  renderAdjustModal();
+}
+function renderAdjustModal(){
+  var item=findItem(pendId); if(!item)return;
+  var label=pendType==='out'?'持出し':'返却';
+  var maxQ=pendType==='out'?item.qty:(item.total-item.qty);
+  var dc=qVal>maxQ?'#dc2626':'#1a56db';
+  var h='<div class="modal-title">'+label+'：'+esc(item.name)+'</div>';
+  h+='<div class="modal-sub">残数 '+item.qty+' / 総保有数 '+item.total+' '+esc(item.unit)+'</div>';
+  h+='<div class="qty-display">';
+  h+='<div style="font-size:11px;color:#64748b;margin-bottom:5px">'+label+'する数量</div>';
+  h+='<div class="qty-big" style="color:'+dc+'">'+qVal+'<span style="font-size:18px;color:#94a3b8;margin-left:5px">'+esc(item.unit)+'</span></div>';
+  if(qVal>maxQ)h+='<div style="font-size:11px;color:#dc2626;margin-top:6px;font-weight:600">⚠ 上限を超えています（最大'+maxQ+'）</div>';
+  h+='</div>';
+  if(qMode==='quick'){
+    h+='<div style="display:flex;gap:8px;margin-bottom:12px">';
+    h+='<button onclick="adjBy(-1)" style="flex:1;padding:13px;background:#fff;border:2px solid #e2e8f0;border-radius:10px;font-size:18px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit">−1</button>';
+    h+='<button onclick="adjBy(1)" style="flex:1;padding:13px;background:#fff;border:2px solid #e2e8f0;border-radius:10px;font-size:18px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit">＋1</button>';
+    h+='</div>';
+    h+='<div style="font-size:11px;color:#64748b;margin-bottom:8px;font-weight:600">クイック選択</div>';
+    h+='<div class="qty-grid">';
+    [1,5,10,20,30,50,75,100].forEach(function(v){
+      h+='<button class="qty-btn'+(qVal===v?' active':'')+'" data-v="'+v+'" onclick="setQ(this)">'+v+'</button>';
+    });
+    h+='</div>';
+    h+='<button onclick="toManual()" style="width:100%;padding:10px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;font-size:12px;color:#92400e;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px">📝 101以上を入力する</button>';
+  } else {
+    h+='<label class="lbl">数量を直接入力</label>';
+    h+='<input id="adj-manual" class="inp" type="number" min="1" value="'+qVal+'" style="font-size:18px;font-weight:700;text-align:center" oninput="onManual(this.value)">';
+    h+='<button onclick="toQuick()" style="width:100%;padding:10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px">← クイック選択に戻る</button>';
+  }
+  h+='<label class="lbl">メモ（任意）</label>';
+  h+='<input id="adj-note" class="inp" type="text" placeholder="例：午前作業" value="'+(window._adjNote||'')+'">';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeAdjModal()">キャンセル</button><button class="btn-primary" onclick="execAdjust()">'+label+'する</button></div>';
+  showModal(h);
+}
+function setQ(el){qVal=parseInt(el.dataset.v);saveNote();renderAdjustModal();}
+function adjBy(d){qVal=Math.max(1,qVal+d);saveNote();renderAdjustModal();}
+function toManual(){qMode='manual';if(qVal<101)qVal=101;saveNote();renderAdjustModal();}
+function toQuick(){qMode='quick';if(qVal>100)qVal=100;saveNote();renderAdjustModal();}
+function saveNote(){var e=document.getElementById('adj-note');if(e)window._adjNote=e.value;}
+function onManual(v){qVal=parseInt(v)||1;if(qVal<1)qVal=1;}
+function closeAdjModal(){window._adjNote='';closeModal();}
+function execAdjust(){
+  var item=findItem(pendId); if(!item)return;
+  if(qMode==='manual'){var me=document.getElementById('adj-manual');if(me)qVal=parseInt(me.value)||0;}
+  var ne=document.getElementById('adj-note'), note=ne?ne.value.trim():'';
+  var amt=qVal;
+  if(amt<=0){toast('数量を入力してください');return;}
+  if(pendType==='out'&&amt>item.qty){toast('在庫が足りません（残'+item.qty+item.unit+'）');return;}
+  if(pendType==='in'&&amt>(item.total-item.qty)){toast('返却数が多すぎます');return;}
+  if(pendType==='out')item.qty-=amt; else item.qty+=amt;
+  var now=new Date(), ds=now.getFullYear()+'/'+(now.getMonth()+1)+'/'+now.getDate(), ts=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
+  hist.unshift({ts:Date.now(),type:pendType,iid:item.id,name:item.name,site:item.site,amt:amt,user:curUser,note:note,after:item.qty});
+  window._adjNote=''; closeModal();
+  toast((pendType==='out'?'📤':'📥')+' '+ds+' '+ts+' '+curUser+'が'+item.name+' '+amt+item.unit+(pendType==='out'?'を持出し':'を返却'));
+  renderContent();
+}
+
+// ============================================================
+// 履歴（工具単体）
+// ============================================================
+function openItemHistory(itemId){
+  var item=findItem(itemId); if(!item)return;
+  var hs=hist.filter(function(h){return h.iid===itemId;});
+  var html='<div class="modal-title">'+esc(item.name)+' の履歴</div>';
+  html+='<div class="modal-sub">総保有数 '+item.total+esc(item.unit)+' ／ 現在残 '+item.qty+esc(item.unit)+'</div>';
+  if(!hs.length){html+='<div style="text-align:center;padding:28px;color:#94a3b8;font-size:12px">履歴がありません</div>';}
+  else{hs.forEach(function(h){var io=h.type==='out',ib=io?'#fff5f5':'#f0fdf4',em=io?'📤':'📥',vb=io?'持出し':'返却',si=io?'−':'+',cl=io?'#dc2626':'#16a34a';html+='<div style="display:flex;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f1f5f9"><div style="width:32px;height:32px;border-radius:50%;background:'+ib+';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-right:10px">'+em+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700;color:#1e293b">'+esc(h.user)+'</div><div style="font-size:11px;color:#64748b;margin-top:1px">'+vb+' ・ '+fmtFull(h.ts)+'</div>';if(h.note)html+='<div style="font-size:10px;background:#f8fafc;padding:2px 8px;border-radius:4px;margin-top:3px;display:inline-block;color:#64748b">'+esc(h.note)+'</div>';html+='</div><div style="text-align:right"><div style="font-size:16px;font-weight:700;color:'+cl+'">'+si+h.amt+esc(item.unit)+'</div><div style="font-size:10px;color:#94a3b8">残 '+h.after+'</div></div></div>';});}
+  html+='<div class="modal-actions" style="margin-top:16px"><button class="btn-primary" style="flex:1" data-id="'+itemId+'" onclick="backToDetail(this)">← 戻る</button></div>';
+  showModal(html);
+}
+function backToDetail(el){openDetailById(el.dataset.id);}
+
+// ============================================================
+// 品目編集
+// ============================================================
+function openItemEdit(itemId){editId=itemId;renderItemEditModal();}
+function openItemEditById(id){editId=id;renderItemEditModal();}
+function renderItemEditModal(){
+  var item=editId?findItem(editId):null, isNew=!item;
+  var sopts=''; sites.forEach(function(s){sopts+='<option value="'+s.id+'"'+(item&&item.site===s.id||!item&&s.id===curSiteId?' selected':'')+'>'+esc(s.name)+'</option>';});
+  var cats=['工具','機械','保護具','消耗品','電材','その他'], copts=''; cats.forEach(function(c){copts+='<option'+(item&&item.cat===c?' selected':'')+'>'+c+'</option>';});
+  var cp=(item&&item.photo)||''; photoData=cp;
+  var pp=isPhoto(cp)?'<img src="'+cp+'" alt="">':'<div><span style="font-size:28px">📷</span><div style="font-size:11px;margin-top:5px;font-weight:500">タップして写真を追加</div></div>';
+  var h='<div class="modal-title">'+(isNew?'品目追加':'品目編集：'+esc(item.name))+'</div>';
+  h+='<div class="photo-area" id="photo-area" onclick="triggerPhoto()">'+pp+'</div>';
+  h+='<input type="file" id="photo-inp" accept="image/*" style="display:none" onchange="handlePhoto(event)">';
+  h+='<label class="lbl">品目名</label><input id="im-name" class="inp" type="text" value="'+(item?esc(item.name):'')+'" placeholder="例：ペンチ">';
+  h+='<label class="lbl">カテゴリ</label><select id="im-cat" class="sel">'+copts+'</select>';
+  h+='<label class="lbl">現場</label><select id="im-site" class="sel">'+sopts+'</select>';
+  h+='<label class="lbl">単位</label><input id="im-unit" class="inp" type="text" value="'+(item?esc(item.unit):'本')+'">';
+  h+='<label class="lbl">総保有数</label><input id="im-total" class="inp" type="number" value="'+(item?item.total:10)+'">';
+  h+='<label class="lbl">現在の在庫数</label><input id="im-qty" class="inp" type="number" value="'+(item?item.qty:10)+'">';
+  h+='<label style="display:flex;align-items:center;font-size:12px;font-weight:500;margin-bottom:14px;cursor:pointer;color:#1e293b"><input type="checkbox" id="im-mach" style="width:16px;height:16px;margin-right:8px"'+(item&&item.mach?' checked':'')+'>機械系（警告なし）</label>';
+  h+='<label class="lbl">備考</label><input id="im-note" class="inp" type="text" value="'+(item?esc(item.note||''):'')+'">';
+  h+='<div class="modal-actions">';
+  if(!isNew)h+='<button class="btn-danger" onclick="deleteItem()">削除</button>';
+  h+='<button class="btn-cancel" onclick="closeModal()">キャンセル</button>';
+  h+='<button class="btn-primary" onclick="saveItem()">'+(isNew?'追加':'保存')+'</button>';
+  h+='</div>';
+  showModal(h);
+}
+function triggerPhoto(){var e=document.getElementById('photo-inp');if(e)e.click();}
+function handlePhoto(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){photoData=ev.target.result;var a=document.getElementById('photo-area');if(a)a.innerHTML='<img src="'+ev.target.result+'" alt="">';};r.readAsDataURL(f);}
+function saveItem(){
+  var name=document.getElementById('im-name').value.trim();
+  if(!name){toast('品目名を入力してください');return;}
+  var obj={id:editId||mkId(),name:name,cat:document.getElementById('im-cat').value,site:document.getElementById('im-site').value,unit:document.getElementById('im-unit').value||'個',total:parseInt(document.getElementById('im-total').value)||1,qty:parseInt(document.getElementById('im-qty').value)||0,mach:document.getElementById('im-mach').checked,note:document.getElementById('im-note').value.trim(),photo:photoData||''};
+  if(editId){var idx=items.findIndex(function(x){return x.id===editId;});if(idx>=0)items[idx]=obj;toast('更新しました');}
+  else{items.push(obj);toast('📦 '+name+' を追加しました');}
+  photoData='';editId=null;closeModal();renderContent();
+}
+function deleteItem(){
+  var item=findItem(editId); if(!item)return;
+  showDeleteConfirm('item',editId,item.name);
+}
+
+// ============================================================
+// 削除確認
+// ============================================================
+function showDeleteConfirm(type,id,name){
+  delType=type; delId=id;
+  var h='<div style="text-align:center;padding:10px 0">';
+  h+='<div style="font-size:50px;margin-bottom:14px">⚠️</div>';
+  h+='<div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:8px">本当に削除しますか？</div>';
+  h+='<div style="font-size:13px;color:#64748b;margin-bottom:20px">「'+esc(name)+'」を削除します<br>この操作は取り消せません</div>';
+  h+='</div><div class="modal-actions"><button class="btn-cancel" onclick="cancelDel()">キャンセル</button><button class="btn-danger" style="flex:2" onclick="confirmDel2()">削除へ進む</button></div>';
+  showModal(h);
+}
+function confirmDel2(){
+  var name='';
+  if(delType==='item'){var t=findItem(delId);if(t)name=t.name;}
+  else if(delType==='member'){var m=members.find(function(x){return x.id===delId;});if(m)name=m.name;}
+  else if(delType==='site'){var s=findSite(delId);if(s)name=s.name;}
+  else if(delType==='tm'){var tm=findTM(delId);if(tm)name=tm.name;}
+  var h='<div style="text-align:center;padding:10px 0">';
+  h+='<div style="font-size:50px;margin-bottom:14px">🗑️</div>';
+  h+='<div style="font-size:17px;font-weight:700;color:#dc2626;margin-bottom:8px">最終確認</div>';
+  h+='<div style="font-size:13px;color:#64748b;margin-bottom:20px">「'+esc(name)+'」を削除します<br><strong style="color:#dc2626">もう一度押すと削除されます</strong></div>';
+  h+='</div><div class="modal-actions"><button class="btn-cancel" onclick="cancelDel()">キャンセル</button>';
+  h+='<button style="flex:2;padding:12px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="execDel()">削除する</button></div>';
+  showModal(h);
+}
+function cancelDel(){delType=null;delId=null;closeModal();}
+function execDel(){
+  if(delType==='item'){items=items.filter(function(x){return x.id!==delId;});editId=null;toast('品目を削除しました');closeModal();renderContent();}
+  else if(delType==='member'){var nm=members.find(function(x){return x.id===delId;});var n=nm?nm.name:'';members=members.filter(function(x){return x.id!==delId;});if(n)sites.forEach(function(s){if(s.chief===n)s.chief='';s.leaders=s.leaders.map(function(l){return l===n?'':l;});});toast('メンバーを削除しました');openMembersModal();}
+  else if(delType==='site'){var sid=delId;items=items.filter(function(x){return x.site!==sid;});sites=sites.filter(function(x){return x.id!==sid;});if(curSiteId===sid&&sites.length>0){curSiteId=sites[0].id;siteIdx=0;}toast('現場を削除しました');openSitesModal();}
+  else if(delType==='tm'){TM.splice(TM.findIndex(function(x){return x.id===delId;}),1);toast('削除しました');openToolMasterModal();}
+  delType=null;delId=null;
+}
+
+// ============================================================
+// 履歴タブ
+// ============================================================
+function renderHistory(){
+  var hs=hist.filter(function(h){return h.site===curSiteId;});
+  var html='<div class="row-header"><span style="font-size:13px;font-weight:700;color:#1e293b">操作履歴</span><span style="font-size:11px;color:#94a3b8">'+hs.length+'件</span></div>';
+  if(!hs.length){html+='<div class="empty-state"><div style="font-size:36px;margin-bottom:10px">📋</div><div style="font-size:12px">履歴がありません</div></div>';document.getElementById('content').innerHTML=html;return;}
+  hs.forEach(function(h){
+    var item=findItem(h.iid), unit=item?item.unit:'';
+    var io=h.type==='out',ic=io?'hist-icon out':'hist-icon in',em=io?'📤':'📥',ac=io?'#dc2626':'#16a34a',si=io?'−':'+',vb=io?'を持出し':'を返却';
+    html+='<div class="hist-card"><div style="width:32px;height:32px;border-radius:50%;background:'+(io?'#fff5f5':'#f0fdf4')+';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-right:9px">'+em+'</div>';
+    html+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#1e293b">'+esc(h.user)+'</div>';
+    html+='<div style="font-size:12px;color:#475569;margin-top:1px">'+esc(h.name)+' <strong style="color:'+ac+'">'+si+h.amt+esc(unit)+'</strong>'+vb+'</div>';
+    html+='<div style="font-size:10px;color:#94a3b8;margin-top:2px">'+fmtFull(h.ts)+'</div>';
+    if(h.note)html+='<div style="font-size:10px;background:#f8fafc;padding:2px 7px;border-radius:4px;margin-top:3px;display:inline-block;color:#64748b">'+esc(h.note)+'</div>';
+    html+='</div><div style="text-align:right"><div style="font-size:10px;color:#94a3b8">残</div><div style="font-size:16px;font-weight:700;color:#1e293b">'+h.after+esc(unit)+'</div></div></div>';
+  });
+  document.getElementById('content').innerHTML=html;
+}
+
+// ============================================================
+// アラートタブ
+// ============================================================
+function renderAlerts(){
+  var di=items.filter(function(x){return getStatus(x)==='danger';});
+  var ui=items.filter(function(x){return getHolders(x.id).length>0;});
+  if(!di.length&&!ui.length){document.getElementById('content').innerHTML='<div class="empty-state" style="color:#16a34a"><div style="font-size:36px;margin-bottom:10px">✅</div><div style="font-size:13px;font-weight:700">すべて正常です</div></div>';return;}
+  var html='';
+  if(di.length){
+    html+='<div class="section-label">🔴 在庫不足（5個以下）</div>';
+    di.forEach(function(item){
+      var s=findSite(item.site), ip=isPhoto(item.photo)?'<div style="font-size:26px;flex-shrink:0;margin-right:10px"><img src="'+item.photo+'" style="width:38px;height:38px;border-radius:8px;object-fit:cover"></div>':'<div style="font-size:26px;flex-shrink:0;margin-right:10px">'+esc(item.photo||'🔧')+'</div>';
+      html+='<div class="alert-card">'+ip+'<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#1e293b">'+esc(item.name)+'</div><div style="font-size:10px;color:#64748b;margin-top:1px">'+(s?esc(s.name):'')+'</div></div><div><div style="font-size:24px;font-weight:700;color:#dc2626">'+item.qty+'</div><div style="font-size:10px;color:#64748b;text-align:right">'+esc(item.unit)+'</div></div></div>';
+    });
+  }
+  if(ui.length){
+    html+='<div class="section-label">📤 持出し中（未返却）</div>';
+    ui.forEach(function(item){
+      var holders=getHolders(item.id);
+      html+='<div class="unret-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:#1e293b">'+esc(item.name)+'</div><span style="font-size:10px;background:#fff3e8;color:#c2410c;padding:2px 8px;border-radius:10px;font-weight:600">'+holders.length+'名持出中</span></div>';
+      holders.forEach(function(hd){html+='<div style="display:flex;align-items:center;padding:5px 0;border-top:1px solid #f1f5f9"><div style="width:26px;height:26px;border-radius:50%;background:#e8f0ff;color:#1241a8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:8px">'+esc(hd.user.charAt(0))+'</div><div style="flex:1"><div style="font-size:12px;font-weight:700;color:#1e293b">'+esc(hd.user)+'</div><div style="font-size:10px;color:#94a3b8">'+fmtFull(hd.ts)+'</div></div><div style="font-size:13px;font-weight:700;color:#f97316">'+hd.amt+esc(item.unit)+'</div></div>';});
+      html+='</div>';
+    });
+  }
+  document.getElementById('content').innerHTML=html;
+}
+
+// ============================================================
+// 現場情報タブ
+// ============================================================
+function renderSiteInfo(){
+  var html='<div class="row-header"><span style="font-size:13px;font-weight:700;color:#1e293b">現場・担当者</span></div>';
+  sites.forEach(function(s,i){
+    var isCur=s.id===curSiteId;
+    html+='<div style="background:#fff;border-radius:12px;padding:13px;margin-bottom:8px;border:'+(isCur?'2px solid #1a56db':'1px solid #e2e8f0')+'">';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:14px;font-weight:700;color:#1e293b">'+esc(s.name)+'</div>';
+    if(isCur)html+='<span style="font-size:10px;background:#e8f0ff;color:#1241a8;padding:2px 8px;border-radius:10px;font-weight:600">現在の現場</span>';
+    html+='</div>';
+    html+='<div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px">現場責任者</div>';
+    if(s.chief)html+='<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9"><div style="width:28px;height:28px;border-radius:50%;background:#fee2e2;color:#b91c1c;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:9px">'+esc(s.chief.charAt(0))+'</div><div><div style="font-size:12px;font-weight:600;color:#1e293b">'+esc(s.chief)+'</div><div style="font-size:10px;color:#94a3b8">現場責任者</div></div></div>';
+    else html+='<div style="font-size:11px;color:#94a3b8;padding:4px 0;border-bottom:1px solid #f1f5f9">未設定</div>';
+    html+='<div style="font-size:10px;font-weight:700;color:#94a3b8;margin:9px 0 6px">班長</div>';
+    for(var j=0;j<3;j++){
+      if(s.leaders[j])html+='<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9"><div style="width:28px;height:28px;border-radius:50%;background:#dbeafe;color:#1e40af;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:9px">'+esc(s.leaders[j].charAt(0))+'</div><div><div style="font-size:12px;font-weight:600;color:#1e293b">'+esc(s.leaders[j])+'</div><div style="font-size:10px;color:#94a3b8">班長 '+(j+1)+'</div></div></div>';
+      else html+='<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9"><div style="width:28px;height:28px;border-radius:50%;background:#f1f5f9;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-size:14px;margin-right:9px">―</div><div style="font-size:12px;color:#94a3b8">未設定（班長 '+(j+1)+'）</div></div>';
+    }
+    if(isAdmin)html+='<button style="margin-top:10px;width:100%;padding:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;font-family:inherit;font-weight:500" data-idx="'+i+'" onclick="openSiteEditFromBtn(this)">編集</button>';
+    html+='</div>';
+  });
+  document.getElementById('content').innerHTML=html;
+}
+function openSiteEditFromBtn(el){openSiteEdit(parseInt(el.dataset.idx));}
+
+// ============================================================
+// ユーザーメニュー
+// ============================================================
+function openUserMenu(){
+  var s=sites[siteIdx], role='一般ユーザー';
+  if(isAdmin)role='管理者';
+  else if(s&&s.chief===curUser)role='現場責任者';
+  else if(s&&s.leaders.indexOf(curUser)>=0)role='班長';
+  var c=AC(0);
+  var h='<div style="display:flex;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #f1f5f9">';
+  h+='<div style="width:44px;height:44px;border-radius:50%;background:'+c[0]+';color:'+c[1]+';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin-right:12px;flex-shrink:0">'+esc(curUser.charAt(0))+'</div>';
+  h+='<div><div style="font-size:16px;font-weight:700;color:#1e293b">'+esc(curUser)+'</div><div style="font-size:11px;color:#64748b;margin-top:2px">'+role+'</div></div></div>';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">閉じる</button><button class="btn-danger" onclick="doLogout()">ログアウト</button></div>';
+  showModal(h);
+}
+function doLogout(){closeModal();showScreen('screen-name');renderNameScreen();}
+
+// ============================================================
+// 管理者 - 現場管理
+// ============================================================
+function openSitesModal(){
+  var h='<div class="modal-title">現場管理</div><div class="modal-sub">現場の追加・編集ができます</div>';
+  h+='<div style="max-height:50vh;overflow-y:auto;margin-bottom:14px">';
+  sites.forEach(function(s,i){
+    var ic=items.filter(function(x){return x.site===s.id;}).length;
+    h+='<div style="display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f1f5f9">';
+    h+='<div style="width:36px;height:36px;border-radius:10px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:11px;flex-shrink:0">📍</div>';
+    h+='<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:#1e293b">'+esc(s.name)+'</div><div style="font-size:11px;color:#64748b;margin-top:1px">'+(s.chief?esc(s.chief):'未設定')+' ・ 品目 '+ic+'件</div></div>';
+    h+='<button data-idx="'+i+'" onclick="openSiteEditFromModal(this)" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit;margin-right:5px">編集</button>';
+    h+='<button data-id="'+s.id+'" data-name="'+esc(s.name)+'" onclick="delSiteFromBtn(this)" style="padding:6px 10px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit">削除</button>';
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<button class="btn-full" style="background:#1a56db;color:#fff" onclick="openNewSiteModal()">＋ 現場を追加</button>';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">← 戻る</button></div>';
+  showModal(h);
+}
+function openSiteEditFromModal(el){openSiteEdit(parseInt(el.dataset.idx));}
+function delSiteFromBtn(el){showDeleteConfirm('site',el.dataset.id,el.dataset.name);}
+function openSiteEdit(idx){
+  var s=sites[idx];
+  function mkSel(id,val){var h='<select id="'+id+'" class="sel"><option value="">（未設定）</option>';members.forEach(function(m){if(!m.admin)h+='<option'+(m.name===val?' selected':'')+'>'+esc(m.name)+'</option>';});return h+'</select>';}
+  var h='<div class="modal-title">現場編集：'+esc(s.name)+'</div>';
+  h+='<label class="lbl">現場責任者</label>'+mkSel('se-chief',s.chief);
+  h+='<label class="lbl">班長 1</label>'+mkSel('se-l0',s.leaders[0]);
+  h+='<label class="lbl">班長 2</label>'+mkSel('se-l1',s.leaders[1]);
+  h+='<label class="lbl">班長 3</label>'+mkSel('se-l2',s.leaders[2]);
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="openSitesModal()">戻る</button><button class="btn-primary" data-idx="'+idx+'" onclick="saveSiteEdit(this)">保存</button></div>';
+  showModal(h);
+}
+function saveSiteEdit(el){
+  var idx=parseInt(el.dataset.idx);
+  sites[idx].chief=document.getElementById('se-chief').value;
+  sites[idx].leaders=[document.getElementById('se-l0').value,document.getElementById('se-l1').value,document.getElementById('se-l2').value];
+  closeModal(); toast('現場情報を更新しました'); renderContent();
+}
+function openNewSiteModal(){
+  var opts='<option value="">（未設定）</option>'; members.forEach(function(m){if(!m.admin)opts+='<option>'+esc(m.name)+'</option>';});
+  var h='<div class="modal-title">新しい現場を追加</div>';
+  h+='<label class="lbl">現場名</label><input id="ns-name" class="inp" type="text" placeholder="例：新小松線 No.67">';
+  h+='<label class="lbl">現場責任者</label><select id="ns-chief" class="sel">'+opts+'</select>';
+  h+='<label class="lbl">班長 1</label><select id="ns-l0" class="sel">'+opts+'</select>';
+  h+='<label class="lbl">班長 2</label><select id="ns-l1" class="sel">'+opts+'</select>';
+  h+='<label class="lbl">班長 3</label><select id="ns-l2" class="sel">'+opts+'</select>';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="openSitesModal()">戻る</button><button class="btn-primary" onclick="saveNewSite()">追加</button></div>';
+  showModal(h);
+}
+function saveNewSite(){
+  var name=document.getElementById('ns-name').value.trim();
+  if(!name){toast('現場名を入力してください');return;}
+  sites.push({id:mkId(),name:name,chief:document.getElementById('ns-chief').value,leaders:[document.getElementById('ns-l0').value,document.getElementById('ns-l1').value,document.getElementById('ns-l2').value]});
+  closeModal(); toast('現場「'+name+'」を追加しました'); renderSiteScreen();
+  if(curSiteId)renderSiteTabs();
+}
+
+// ============================================================
+// 管理者 - 品目管理
+// ============================================================
+function openItemsAdmin(){
+  var h='<div class="modal-title">品目管理</div><div class="modal-sub">全現場の品目を一覧・編集できます</div>';
+  h+='<div style="max-height:55vh;overflow-y:auto;margin-bottom:14px">';
+  if(!items.length){h+='<div style="text-align:center;padding:30px;color:#94a3b8;font-size:12px">品目がありません</div>';}
+  else{items.forEach(function(item){
+    var s=findSite(item.site), st=getStatus(item), qc=st==='danger'?'#dc2626':st==='machine'?'#94a3b8':'#16a34a';
+    var ip=isPhoto(item.photo)?'<img src="'+item.photo+'" style="width:42px;height:42px;border-radius:8px;object-fit:cover;margin-right:11px;flex-shrink:0">':'<div style="width:42px;height:42px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:22px;margin-right:11px;flex-shrink:0">'+esc(item.photo||'🔧')+'</div>';
+    h+='<div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9">'+ip;
+    h+='<div style="flex:1;min-width:0;margin-right:8px"><div style="font-size:13px;font-weight:600;color:#1e293b">'+esc(item.name)+'</div><div style="font-size:10px;color:#64748b;margin-top:1px">'+(s?esc(s.name):'不明')+' ・ <span style="color:'+qc+';font-weight:600">'+item.qty+'/'+item.total+esc(item.unit)+'</span></div></div>';
+    h+='<button data-id="'+item.id+'" onclick="openItemEditFromAdmin(this)" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit">編集</button>';
+    h+='</div>';
+  });}
+  h+='</div>';
+  h+='<button class="btn-full" style="background:#1a56db;color:#fff" onclick="openItemEdit(null)">＋ 品目を追加</button>';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">← 戻る</button></div>';
+  showModal(h);
+}
+function openItemEditFromAdmin(el){openItemEditById(el.dataset.id);}
+
+// ============================================================
+// 管理者 - メンバー管理
+// ============================================================
+function openMembersModal(){
+  var h='<div class="modal-title">メンバー管理</div><div class="modal-sub">名前の編集・追加・削除ができます</div>';
+  h+='<div style="max-height:50vh;overflow-y:auto;margin-bottom:14px">';
+  members.forEach(function(m,i){
+    var c=AC(i);
+    h+='<div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9">';
+    h+='<div style="width:34px;height:34px;border-radius:50%;background:'+c[0]+';color:'+c[1]+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-right:10px;flex-shrink:0">'+esc(m.name.charAt(0))+'</div>';
+    h+='<div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1e293b">'+esc(m.name)+'</div>';
+    if(m.admin)h+='<div style="font-size:10px;color:#dc2626;font-weight:600">管理者</div>';
+    h+='</div>';
+    if(!m.admin){
+      h+='<button data-idx="'+i+'" onclick="openMemEditFromBtn(this)" style="padding:6px 12px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit;margin-right:5px">編集</button>';
+      h+='<button data-id="'+m.id+'" data-name="'+esc(m.name)+'" onclick="delMemFromBtn(this)" style="padding:6px 10px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit">削除</button>';
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<button class="btn-full" style="background:#1a56db;color:#fff" onclick="openMemAdd()">＋ メンバーを追加</button>';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">← 戻る</button></div>';
+  showModal(h);
+}
+function openMemEditFromBtn(el){editMemIdx=parseInt(el.dataset.idx);openMemEdit();}
+function delMemFromBtn(el){showDeleteConfirm('member',el.dataset.id,el.dataset.name);}
+function openMemAdd(){showModal('<div class="modal-title">メンバー追加</div><label class="lbl">名前</label><input id="mem-name" class="inp" type="text" placeholder="例：田村 健"><div class="modal-actions"><button class="btn-cancel" onclick="openMembersModal()">戻る</button><button class="btn-primary" onclick="saveMemAdd()">追加</button></div>');}
+function saveMemAdd(){var name=document.getElementById('mem-name').value.trim();if(!name){toast('名前を入力してください');return;}members.push({id:mkId(),name:name,admin:false});toast('👤 '+name+' を追加しました');openMembersModal();}
+function openMemEdit(){var m=members[editMemIdx];if(!m)return;showModal('<div class="modal-title">メンバー編集</div><label class="lbl">名前</label><input id="mem-edit-name" class="inp" type="text" value="'+esc(m.name)+'"><div class="modal-actions"><button class="btn-cancel" onclick="openMembersModal()">戻る</button><button class="btn-primary" onclick="saveMemEdit()">保存</button></div>');}
+function saveMemEdit(){var name=document.getElementById('mem-edit-name').value.trim();if(!name){toast('名前を入力してください');return;}var old=members[editMemIdx].name;members[editMemIdx].name=name;if(old!==name)sites.forEach(function(s){if(s.chief===old)s.chief=name;s.leaders=s.leaders.map(function(l){return l===old?name:l;});});toast('更新しました');openMembersModal();}
+
+// ============================================================
+// 工具マスター管理
+// ============================================================
+function openToolMasterModal(){tmKana='';renderTMModal();}
+function renderTMModal(){
+  var kanas=activeKanas();
+  var filtered=tmKana?TM.filter(function(t){return t.yomi===tmKana;}):[];
+  var h='<div class="modal-title">🔧 工具管理（全社）</div><div class="modal-sub">全社の工具総数を管理します</div>';
+  h+='<label class="lbl">① 読みで絞り込む</label>';
+  h+='<div class="kana-wrap">';
+  kanas.forEach(function(k,i){h+='<button class="kana-btn'+(tmKana===k?' active':'')+'" data-idx="'+i+'" onclick="setTmKana(this)">'+esc(k)+'</button>';});
+  if(tmKana)h+='<button class="kana-btn" onclick="clearTmKana()">✕</button>';
+  h+='</div>';
+  h+='<label class="lbl">② 工具を選択</label>';
+  h+='<select class="sel" id="tm-sel" onchange="tmSelChange()">';
+  h+='<option value="">'+(tmKana?'工具を選択':'← まず読みを選択')+'</option>';
+  filtered.forEach(function(t){h+='<option value="'+t.id+'">'+esc(t.name)+'（'+t.total+t.unit+'）</option>';});
+  h+='</select>';
+  h+='<div id="tm-detail"></div>';
+  h+='<label class="lbl" style="margin-top:4px">一覧'+(tmKana?' ['+tmKana+']':'')+'</label>';
+  h+='<div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:14px;overflow:hidden;max-height:200px;overflow-y:auto">';
+  var disp=tmKana?filtered:TM;
+  disp.forEach(function(t){
+    h+='<div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid #f1f5f9">';
+    h+='<span style="font-size:9px;background:#e8f0ff;color:#1241a8;padding:1px 6px;border-radius:10px;font-weight:600;margin-right:8px">'+esc(t.yomi)+'</span>';
+    h+='<div style="flex:1;font-size:13px;font-weight:600;color:#1e293b">'+esc(t.name)+'</div>';
+    h+='<div style="font-size:16px;font-weight:700;color:#1a56db">'+t.total+'<span style="font-size:10px;color:#94a3b8;margin-left:2px">'+esc(t.unit)+'</span></div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<button class="btn-full" style="background:#1a56db;color:#fff" onclick="openAddTM()">＋ 新しい工具を追加</button>';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">← 戻る</button></div>';
+  showModal(h);
+}
+function setTmKana(el){tmKana=activeKanas()[parseInt(el.dataset.idx)];renderTMModal();}
+function clearTmKana(){tmKana='';renderTMModal();}
+function tmSelChange(){
+  var sel=document.getElementById('tm-sel'); if(!sel)return;
+  var id=sel.value, det=document.getElementById('tm-detail'); if(!det)return;
+  if(!id){det.innerHTML='';return;}
+  var t=findTM(id); if(!t){det.innerHTML='';return;}
+  var h='<div style="background:#fff;border:2px solid #1a56db;border-radius:12px;padding:14px;margin-bottom:14px">';
+  h+='<div style="font-size:16px;font-weight:700;color:#1e293b;margin-bottom:8px">'+esc(t.name)+'</div>';
+  h+='<div style="display:flex;align-items:center;margin-bottom:10px"><span style="font-size:12px;color:#64748b;flex:1">総数</span><span style="font-size:24px;font-weight:700;color:#1a56db">'+t.total+'<span style="font-size:12px;color:#94a3b8;margin-left:4px">'+esc(t.unit)+'</span></span></div>';
+  h+='<div style="display:flex;gap:8px">';
+  h+='<button data-tmid="'+id+'" onclick="tmAdj(this,1)" style="flex:1;padding:10px;background:#e8f0ff;color:#1241a8;border:1px solid #bfdbfe;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">＋1</button>';
+  h+='<button data-tmid="'+id+'" onclick="tmAdj(this,-1)" style="flex:1;padding:10px;background:#fff5f5;color:#dc2626;border:1px solid #fecaca;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">－1</button>';
+  h+='<button data-tmid="'+id+'" onclick="tmDirectBtn(this)" style="flex:1;padding:10px;background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:12px;cursor:pointer;font-family:inherit">直接入力</button>';
+  h+='</div></div>';
+  det.innerHTML=h;
+}
+function tmAdj(el,d){var t=findTM(el.dataset.tmid);if(!t)return;t.total=Math.max(0,t.total+d);toast(t.name+' 総数: '+t.total+t.unit);renderTMModal();}
+function tmDirectBtn(el){var t=findTM(el.dataset.tmid);if(!t)return;var v=prompt(t.name+' の総数を入力',t.total);if(v===null)return;var n=parseInt(v);if(isNaN(n)||n<0)return;t.total=n;toast('更新しました');renderTMModal();}
+function openAddTM(){
+  var opts=''; GOJUON.forEach(function(k){opts+='<option value="'+k+'">'+k+'</option>';});
+  var h='<div class="modal-title">新しい工具を追加</div>';
+  h+='<label class="lbl">工具名</label><input id="tm-name" class="inp" type="text" placeholder="例：ペンチ">';
+  h+='<label class="lbl">読み（頭文字）</label><select id="tm-yomi" class="sel"><option value="">選択してください</option>'+opts+'</select>';
+  h+='<label class="lbl">単位</label><input id="tm-unit" class="inp" type="text" placeholder="本・個・台" value="本">';
+  h+='<label class="lbl">総数</label><input id="tm-total" class="inp" type="number" value="1" min="0">';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="openToolMasterModal()">← 戻る</button><button class="btn-primary" onclick="saveTM()">追加</button></div>';
+  showModal(h);
+}
+function saveTM(){
+  var name=document.getElementById('tm-name').value.trim();
+  var yomi=document.getElementById('tm-yomi').value;
+  if(!name){toast('工具名を入力してください');return;}
+  if(!yomi){toast('読みを選択してください');return;}
+  TM.push({id:mkId(),name:name,yomi:yomi,unit:document.getElementById('tm-unit').value.trim()||'個',total:parseInt(document.getElementById('tm-total').value)||0});
+  toast('追加しました：'+name); updateCnts(); openToolMasterModal();
+}
+
+// ============================================================
+// 現場への工具追加（マスターから）
+// ============================================================
+function openAddFromMaster(){addKana='';renderAddFromMaster();}
+function renderAddFromMaster(){
+  var kanas=activeKanas();
+  var filtered=addKana?TM.filter(function(t){return t.yomi===addKana;}):[];
+  var existMap={};
+  items.filter(function(x){return x.site===curSiteId&&x.ref;}).forEach(function(x){existMap[x.ref]=true;});
+  var h='<div class="modal-title">工具を追加</div><div class="modal-sub">工具マスターから選んで追加します</div>';
+  h+='<label class="lbl">① 読みで絞り込む</label>';
+  h+='<div class="kana-wrap">';
+  kanas.forEach(function(k,i){h+='<button class="kana-btn'+(addKana===k?' active':'')+'" data-idx="'+i+'" onclick="setAddKana(this)">'+esc(k)+'</button>';});
+  if(addKana)h+='<button class="kana-btn" onclick="clearAddKana()">✕</button>';
+  h+='</div>';
+  h+='<label class="lbl">② 工具を選択</label>';
+  h+='<select class="sel" id="add-tm-sel" onchange="addTMSelChange()">';
+  h+='<option value="">'+(addKana?'工具を選択':'← まず読みを選択')+'</option>';
+  filtered.forEach(function(t){h+='<option value="'+t.id+'"'+(existMap[t.id]?' disabled':'')+'>'+esc(t.name)+'（'+t.total+t.unit+'）'+(existMap[t.id]?' ★登録済':'')+'</option>';});
+  h+='</select>';
+  h+='<div id="add-tm-detail"></div>';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">キャンセル</button></div>';
+  showModal(h);
+}
+function setAddKana(el){addKana=activeKanas()[parseInt(el.dataset.idx)];renderAddFromMaster();}
+function clearAddKana(){addKana='';renderAddFromMaster();}
+function addTMSelChange(){
+  var sel=document.getElementById('add-tm-sel'); if(!sel)return;
+  var id=sel.value, det=document.getElementById('add-tm-detail'); if(!det)return;
+  if(!id){det.innerHTML='';return;}
+  var h='<label class="lbl">この現場の在庫数</label><input id="add-qty" class="inp" type="number" value="0" min="0">';
+  h+='<label class="lbl">カテゴリ</label><select id="add-cat" class="sel"><option>工具</option><option>機械</option><option>保護具</option><option>消耗品</option><option>電材</option><option>その他</option></select>';
+  h+='<button class="btn-full" style="background:#f97316;color:#fff" onclick="saveAddFromMaster()">追加</button>';
+  det.innerHTML=h;
+}
+function saveAddFromMaster(){
+  var sel=document.getElementById('add-tm-sel'); if(!sel||!sel.value){toast('工具を選択してください');return;}
+  var tmId=sel.value, tm=findTM(tmId); if(!tm)return;
+  var qty=parseInt((document.getElementById('add-qty')||{}).value)||0;
+  var cat=(document.getElementById('add-cat')||{}).value||'工具';
+  items.push({id:mkId(),name:tm.name,cat:cat,site:curSiteId,unit:tm.unit,total:tm.total,qty:qty,mach:false,note:'',photo:'',ref:tm.id});
+  toast('📦 '+tm.name+' を追加しました'); closeModal(); renderContent();
+}
+
+// ============================================================
+// アプリ設定
+// ============================================================
+function openAppSettings(){
+  var pb=cfg.bg?'linear-gradient(135deg,rgba(0,0,0,.4),rgba(0,0,0,.55)),url('+cfg.bg+') center/cover':cfg.color;
+  var h='<div class="modal-title">⚙️ アプリ設定</div><div class="modal-sub">タイトル・色・背景画像を変更できます</div>';
+  h+='<div style="background:'+pb+';padding:32px 16px;text-align:center;border-radius:12px;margin-bottom:16px">';
+  h+='<div style="font-size:30px;margin-bottom:8px">🔧</div>';
+  h+='<div id="cfg-prev" style="font-size:18px;font-weight:700;color:#fff">'+esc(cfg.title)+'</div></div>';
+  h+='<label class="lbl">アプリ名</label><input id="cfg-title" class="inp" type="text" value="'+esc(cfg.title)+'" oninput="cfgPrev(this.value)">';
+  h+='<label class="lbl">ヘッダーの色</label>';
+  h+='<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px">';
+  [{bg:'#1a56db',n:'青'},{bg:'#0f766e',n:'緑'},{bg:'#dc2626',n:'赤'},{bg:'#ea580c',n:'橙'},{bg:'#7c3aed',n:'紫'},{bg:'#0891b2',n:'水'},{bg:'#475569',n:'灰'},{bg:'#1e293b',n:'黒'},{bg:'#be185d',n:'桃'},{bg:'#65a30d',n:'黄緑'},{bg:'#a16207',n:'金'},{bg:'#06b6d4',n:'空'}].forEach(function(c,i){
+    h+='<button data-idx="'+i+'" onclick="setCfgColor(this)" style="width:100%;aspect-ratio:1;background:'+c.bg+';border:'+(cfg.color===c.bg?'3px solid #000':'1px solid #e2e8f0')+';border-radius:10px;cursor:pointer;color:#fff;font-size:11px;font-weight:600">'+c.n+'</button>';
+  });
+  h+='</div>';
+  h+='<label class="lbl">背景画像（任意）</label>';
+  h+='<div style="display:flex;margin-bottom:14px">';
+  h+='<button onclick="triggerCfgPhoto()" style="flex:1;padding:11px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569;cursor:pointer;font-family:inherit;font-weight:500;margin-right:6px">📷 画像を選ぶ</button>';
+  if(cfg.bg)h+='<button onclick="clearCfgBg()" style="padding:11px 14px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:10px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500">削除</button>';
+  h+='</div>';
+  h+='<input type="file" id="cfg-photo" accept="image/*" style="display:none" onchange="handleCfgPhoto(event)">';
+  h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">← 戻る</button><button class="btn-primary" onclick="saveCfg()">保存</button></div>';
+  showModal(h);
+}
+var _cfgColors=[{bg:'#1a56db'},{bg:'#0f766e'},{bg:'#dc2626'},{bg:'#ea580c'},{bg:'#7c3aed'},{bg:'#0891b2'},{bg:'#475569'},{bg:'#1e293b'},{bg:'#be185d'},{bg:'#65a30d'},{bg:'#a16207'},{bg:'#06b6d4'}];
+function setCfgColor(el){cfg.color=_cfgColors[parseInt(el.dataset.idx)].bg;openAppSettings();}
+function cfgPrev(v){var p=document.getElementById('cfg-prev');if(p)p.textContent=v||'アプリ名';}
+function triggerCfgPhoto(){var e=document.getElementById('cfg-photo');if(e)e.click();}
+function handleCfgPhoto(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){cfg.bg=ev.target.result;openAppSettings();};r.readAsDataURL(f);}
+function clearCfgBg(){cfg.bg='';openAppSettings();}
+function saveCfg(){var t=document.getElementById('cfg-title');if(t){var v=t.value.trim();if(v)cfg.title=v;}applyStyle();closeModal();toast('アプリ設定を保存しました');}
+
+// ============================================================
+// 初期化
+// ============================================================
+applyStyle();
+renderNameScreen();
+</script>
+</body>
+</html>
