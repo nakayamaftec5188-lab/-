@@ -201,6 +201,19 @@ input,select{font-family:inherit}
 // ============================================================
 var cfg = {title:'現場工具管理', color:'#1a56db', bg:''};
 var GOJUON = ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','な','に','ぬ','ね','の','は','ひ','ふ','へ','ほ','ま','み','む','め','も','や','ゆ','よ','ら','り','る','れ','ろ','わ','を','ん'];
+var KANA_ROWS = [
+  {head:'あ',chars:['あ','い','う','え','お']},
+  {head:'か',chars:['か','き','く','け','こ']},
+  {head:'さ',chars:['さ','し','す','せ','そ']},
+  {head:'た',chars:['た','ち','つ','て','と']},
+  {head:'な',chars:['な','に','ぬ','ね','の']},
+  {head:'は',chars:['は','ひ','ふ','へ','ほ']},
+  {head:'ま',chars:['ま','み','む','め','も']},
+  {head:'や',chars:['や','ゆ','よ']},
+  {head:'ら',chars:['ら','り','る','れ','ろ']},
+  {head:'わ',chars:['わ','を','ん']}
+];
+function getKanaRow(k){for(var i=0;i<KANA_ROWS.length;i++){if(KANA_ROWS[i].chars.indexOf(k)>=0)return KANA_ROWS[i].head;}return null;}
 var TM = [
   {id:'tm1',name:'ペンチ',yomis:['へ'],unit:'本',total:20,photo:''},
   {id:'tm2',name:'電工ナイフ',yomis:['て','で'],unit:'本',total:10,photo:''},
@@ -242,25 +255,24 @@ var members = [
   {id:'m5',name:'中村 健',admin:false}
 ];
 var sites = [
-  {id:'s0',name:'新小松線 No.64',chief:'山田 太郎',leaders:['鈴木 一郎','田中 花子',''],tools:[{id:'tm1',qty:12},{id:'tm2',qty:3},{id:'tm3',qty:4},{id:'tm4',qty:2},{id:'tm5',qty:1}]},
+  {id:'s0',name:'新小松線 No.64',chief:'山田 太郎',leaders:['鈴木 一郎','田中 花子',''],tools:[{id:'tm1',qty:12},{id:'tm2',qty:3},{id:'tm3',qty:11},{id:'tm4',qty:2},{id:'tm5',qty:1}]},
   {id:'s1',name:'新小松線 No.65',chief:'佐藤 次郎',leaders:['中村 健','',''],tools:[{id:'tm6',qty:3},{id:'tm7',qty:20}]},
   {id:'s2',name:'資材置き場',chief:'',leaders:['','',''],tools:[]}
 ];
 var items = [
-  {id:'i1',name:'ペンチ',cat:'工具',site:'s0',unit:'本',total:20,qty:12,mach:false,note:'',photo:'🔧',ref:'tm1'},
-  {id:'i2',name:'電工ナイフ',cat:'工具',site:'s0',unit:'本',total:10,qty:3,mach:false,note:'',photo:'🔪',ref:'tm2'},
-  {id:'i3',name:'安全帯',cat:'保護具',site:'s0',unit:'個',total:15,qty:4,mach:false,note:'年次点検 2026/10',photo:'🦺',ref:'tm3'},
-  {id:'i4',name:'絶縁テープ',cat:'消耗品',site:'s0',unit:'巻',total:30,qty:2,mach:false,note:'',photo:'🎞️',ref:'tm4'},
-  {id:'i5',name:'チェーンブロック',cat:'機械',site:'s0',unit:'台',total:2,qty:1,mach:true,note:'1t×2台',photo:'⛓️',ref:'tm5'},
-  {id:'i6',name:'ハンマー',cat:'工具',site:'s1',unit:'本',total:8,qty:3,mach:false,note:'',photo:'🔨',ref:'tm6'},
-  {id:'i7',name:'ヘルメット',cat:'保護具',site:'s2',unit:'個',total:25,qty:20,mach:false,note:'',photo:'⛑️',ref:'tm7'}
+  {id:'i1',name:'ペンチ',cat:'工具',site:'s0',unit:'本',total:12,qty:12,mach:false,note:'',photo:'🔧',ref:'tm1'},
+  {id:'i2',name:'電工ナイフ',cat:'工具',site:'s0',unit:'本',total:3,qty:3,mach:false,note:'',photo:'🔪',ref:'tm2'},
+  {id:'i3',name:'安全帯',cat:'保護具',site:'s0',unit:'個',total:11,qty:11,mach:false,note:'年次点検 2026/10',photo:'🦺',ref:'tm3'},
+  {id:'i4',name:'絶縁テープ',cat:'消耗品',site:'s0',unit:'巻',total:2,qty:2,mach:false,note:'',photo:'🎞️',ref:'tm4'},
+  {id:'i5',name:'チェーンブロック',cat:'機械',site:'s0',unit:'台',total:1,qty:1,mach:true,note:'1t×2台',photo:'⛓️',ref:'tm5'},
+  {id:'i6',name:'ハンマー',cat:'工具',site:'s1',unit:'本',total:3,qty:3,mach:false,note:'',photo:'🔨',ref:'tm6'},
+  {id:'i7',name:'ヘルメット',cat:'保護具',site:'s2',unit:'個',total:20,qty:20,mach:false,note:'',photo:'⛑️',ref:'tm7'}
 ];
 var hist = [
-  {ts:Date.now()-172800000,type:'out',iid:'i1',name:'ペンチ',site:'s0',amt:5,user:'鈴木 一郎',note:'',after:15},
-  {ts:Date.now()-86400000,type:'out',iid:'i1',name:'ペンチ',site:'s0',amt:3,user:'田中 花子',note:'資材搬入',after:12},
-  {ts:Date.now()-72000000,type:'out',iid:'i2',name:'電工ナイフ',site:'s0',amt:7,user:'山田 太郎',note:'緊急使用',after:3},
-  {ts:Date.now()-14400000,type:'in',iid:'i1',name:'ペンチ',site:'s0',amt:2,user:'鈴木 一郎',note:'',after:12},
-  {ts:Date.now()-7200000,type:'out',iid:'i3',name:'安全帯',site:'s0',amt:11,user:'渡辺 博',note:'',after:4}
+  {ts:Date.now()-172800000,type:'out',iid:'i1',name:'ペンチ',site:'s0',amt:5,user:'鈴木 一郎',note:'',after:5},
+  {ts:Date.now()-86400000,type:'out',iid:'i1',name:'ペンチ',site:'s0',amt:7,user:'田中 花子',note:'',after:12},
+  {ts:Date.now()-72000000,type:'out',iid:'i2',name:'電工ナイフ',site:'s0',amt:3,user:'山田 太郎',note:'',after:3},
+  {ts:Date.now()-7200000,type:'out',iid:'i3',name:'安全帯',site:'s0',amt:11,user:'渡辺 博',note:'',after:11}
 ];
 
 // ============================================================
@@ -281,15 +293,22 @@ function fmtFull(ts){var d=new Date(ts);return d.getFullYear()+'/'+(d.getMonth()
 function fmtShort(ts){var d=new Date(ts);return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show';if(t._t)clearTimeout(t._t);t._t=setTimeout(function(){t.className='toast';},2800);}
 function showModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-bg').className='modal-bg show';}
-function closeModal(){document.getElementById('modal-bg').className='modal-bg';}
+function closeModal(){
+  // unfocus any input/textarea/select to dismiss mobile keyboard and prevent viewport zoom-stick
+  var ae=document.activeElement;
+  if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.tagName==='SELECT'))ae.blur();
+  document.getElementById('modal-bg').className='modal-bg';
+  // reset window scroll (mobile sometimes leaves it scrolled)
+  setTimeout(function(){window.scrollTo(0,0);},50);
+}
 function onModalBgClick(e){if(e.target===document.getElementById('modal-bg'))closeModal();}
 function showScreen(id){document.querySelectorAll('.scr').forEach(function(s){s.className='scr hidden';});document.getElementById(id).className='scr';}
-function getStatus(item){if(item.mach)return 'machine';if(item.qty<=5)return 'danger';return 'ok';}
+function getStatus(item){if(item.mach)return 'machine';var ci=getCompanyInfo(item);if(ci.inCompany<=5)return 'danger';return 'ok';}
 function findItem(id){return items.find(function(x){return x.id===id;})||null;}
 function findSite(id){return sites.find(function(x){return x.id===id;})||null;}
 function findTM(id){return TM.find(function(x){return x.id===id;})||null;}
 function getHolders(iid){
-  // Per-user net outstanding
+  // 持出し(out)した人の純数を計算（その人が現場に持ってきた数）
   var net={}, lastTs={};
   hist.filter(function(h){return h.iid===iid;}).sort(function(a,b){return a.ts-b.ts;}).forEach(function(h){
     if(!net[h.user])net[h.user]=0;
@@ -301,8 +320,23 @@ function getHolders(iid){
   });
 }
 function getOutAmt(item){
-  // True outstanding = total - current qty (source of truth)
+  // 現場から持出し中 = 現場割当 - 現場残数
   return Math.max(0, item.total - item.qty);
+}
+function getCompanyInfo(item){
+  // 会社全体での状況
+  // 会社残数 = TM総数 - 全現場にある数の合計
+  if(!item.ref)return {total:item.total,atSites:0,inCompany:Math.max(0,item.total-item.qty)};
+  var tm=findTM(item.ref); if(!tm)return {total:item.total,atSites:0,inCompany:0};
+  var totalAtSites=0;
+  items.forEach(function(x){
+    if(x.ref===item.ref)totalAtSites+=x.qty;
+  });
+  return {
+    total: tm.total,
+    atSites: totalAtSites,
+    inCompany: Math.max(0, tm.total-totalAtSites)
+  };
 }
 function AC(i){var c=[['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fef9c3','#854d0e'],['#ede9fe','#5b21b6'],['#ffedd5','#9a3412'],['#fce7f3','#9d174d'],['#f0fdf4','#14532d'],['#fff7ed','#7c2d12'],['#ecfdf5','#065f46'],['#fdf4ff','#7e22ce'],['#e0f2fe','#0369a1']];return c[i%c.length];}
 function catStyle(cat){if(cat==='工具')return 'background:#e8f0ff;color:#1241a8';if(cat==='機械')return 'background:#f1f5f9;color:#475569';if(cat==='保護具')return 'background:#f0fdf4;color:#166534';if(cat==='消耗品')return 'background:#fff7ed;color:#9a3412';return 'background:#fdf4ff;color:#7e22ce';}
@@ -372,7 +406,7 @@ function enterSite(el){
   document.getElementById('hdr-uname').textContent=curUser;
   document.getElementById('hdr-av').textContent=curUser.charAt(0);
   document.getElementById('hdr-site').textContent=sites[i].name;
-  document.getElementById('fab').style.display='flex';
+  document.getElementById('fab').style.display=isAdmin?'flex':'none';
   renderSiteTabs(); switchTab(0); showScreen('screen-main');
 }
 
@@ -417,22 +451,21 @@ function renderInventory(){
     h+='<div class="tool-name">'+esc(item.name)+'</div>';
     if(item.note)h+='<div class="tool-note">'+esc(item.note)+'</div>';
     if(holders.length)h+='<div class="tool-hold">📤 '+holders.length+'名持出中</div>';
-    var outAmt=getOutAmt(item);
     h+='</div>';
-    // right panel: two stat boxes side by side
-    h+='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end">';
-    h+='<div style="text-align:center;background:#f1f5f9;border-radius:8px;padding:4px 8px;min-width:52px">';
-    h+='<div style="font-size:9px;color:#94a3b8;margin-bottom:1px">残数</div>';
-    h+='<div style="font-size:20px;font-weight:700;line-height:1;color:'+(st==='danger'?'#dc2626':st==='machine'?'#94a3b8':'#16a34a')+'">'+item.qty+'</div>';
-    h+='<div style="font-size:9px;color:#94a3b8">/'+item.total+esc(item.unit)+'</div>';
+    // right panel
+    var ci=getCompanyInfo(item);
+    h+='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;min-width:96px">';
+    // 会社残数（緑）
+    var compLow=ci.inCompany<=5&&!item.mach;
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:'+(compLow?'#fef2f2':'#f0fdf4')+';border:1px solid '+(compLow?'#fecaca':'#bbf7d0')+';border-radius:8px">';
+    h+='<span style="font-size:9px;color:'+(compLow?'#b91c1c':'#15803d')+';font-weight:600">会社残数</span>';
+    h+='<span style="font-size:16px;font-weight:700;color:'+(compLow?'#dc2626':'#15803d')+';line-height:1">'+ci.inCompany+'<span style="font-size:9px;margin-left:1px">'+esc(item.unit)+'</span></span>';
     h+='</div>';
-    if(outAmt>0){
-      h+='<div style="text-align:center;background:#fff3e8;border:1px solid #fed7aa;border-radius:8px;padding:4px 8px;min-width:52px">';
-      h+='<div style="font-size:9px;color:#c2410c;font-weight:600;margin-bottom:1px">持出</div>';
-      h+='<div style="font-size:20px;font-weight:700;line-height:1;color:#f97316">'+outAmt+'</div>';
-      h+='<div style="font-size:9px;color:#c2410c">'+esc(item.unit)+'</div>';
-      h+='</div>';
-    }
+    // 現場
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:#f1f5f9;border-radius:8px">';
+    h+='<span style="font-size:9px;color:#64748b;font-weight:600">現場</span>';
+    h+='<span style="font-size:16px;font-weight:700;line-height:1;color:#1e293b">'+item.qty+'<span style="font-size:9px;color:#94a3b8;margin-left:1px">'+esc(item.unit)+'</span></span>';
+    h+='</div>';
     h+='</div>';
     h+='</div>';
   });
@@ -456,17 +489,35 @@ function openDetailById(itemId){
   var imgH=isPhoto(item.photo)?'<div class="detail-img"><img src="'+item.photo+'" alt=""></div>':'<div class="detail-img">'+esc(item.photo||'🔧')+'</div>';
   var holdH='';
   if(holders.length){holders.forEach(function(hd){holdH+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;font-weight:600;color:#1e293b">📤 '+esc(hd.user)+'</span><span style="font-size:10px;color:#64748b">'+fmtShort(hd.ts)+' / '+hd.amt+esc(item.unit)+'</span></div>';});}
-  else holdH='<span style="color:#94a3b8;font-size:12px">持出しなし</span>';
+  else holdH='<span style="color:#94a3b8;font-size:12px">履歴なし</span>';
   var h=imgH+'<div style="font-size:18px;font-weight:700;color:#1e293b;margin-bottom:5px">'+esc(item.name)+'</div>';
   h+='<div style="margin-bottom:14px"><span style="'+catStyle(item.cat)+';padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">'+esc(item.cat)+'</span>';
   if(item.note)h+='<span style="font-size:11px;color:#64748b;margin-left:6px">'+esc(item.note)+'</span>';
   h+='</div>';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;margin-bottom:12px">';
-  h+='<span style="font-size:12px;color:#64748b">残数 / 総保有数</span>';
   var totalOut=getOutAmt(item);
-  h+='<span style="font-size:20px;font-weight:700;color:'+qc+'">'+item.qty+' / '+item.total+' <span style="font-size:12px;color:#94a3b8">'+esc(item.unit)+'</span></span></div>';
-  if(totalOut>0){h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;margin-bottom:12px"><span style="font-size:12px;color:#64748b">持出し合計</span><span style="font-size:18px;font-weight:700;color:#f97316">'+totalOut+' <span style="font-size:12px;color:#94a3b8">'+esc(item.unit)+'</span></span></div>';}
-  h+='<div style="background:#f8fafc;border-radius:10px;padding:10px 12px;margin-bottom:14px">'+holdH+'</div>';
+  var ci=getCompanyInfo(item);
+  // 大きく２つの数字を表示
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
+  // 会社残
+  var compLow=ci.inCompany<=5&&!item.mach;
+  h+='<div style="text-align:center;background:'+(compLow?'#fef2f2':'#f0fdf4')+';border:1px solid '+(compLow?'#fecaca':'#bbf7d0')+';border-radius:12px;padding:14px 6px">';
+  h+='<div style="font-size:11px;color:'+(compLow?'#b91c1c':'#15803d')+';font-weight:700;margin-bottom:4px">会社残数</div>';
+  h+='<div style="font-size:30px;font-weight:700;color:'+(compLow?'#dc2626':'#15803d')+';line-height:1">'+ci.inCompany+'</div>';
+  h+='<div style="font-size:10px;color:'+(compLow?'#b91c1c':'#15803d')+';margin-top:2px">'+esc(item.unit)+' / 総'+ci.total+esc(item.unit)+'</div>';
+  h+='</div>';
+  // 現場
+  h+='<div style="text-align:center;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;padding:14px 6px">';
+  h+='<div style="font-size:11px;color:#475569;font-weight:700;margin-bottom:4px">現場</div>';
+  h+='<div style="font-size:30px;font-weight:700;color:#1e293b;line-height:1">'+item.qty+'</div>';
+  h+='<div style="font-size:10px;color:#94a3b8;margin-top:2px">'+esc(item.unit)+'</div>';
+  h+='</div>';
+  h+='</div>';
+  // 他現場への割当（参考情報）
+  var otherSitesQty=ci.atSites-item.qty;
+  if(otherSitesQty>0){
+    h+='<div style="font-size:11px;color:#64748b;text-align:center;margin-bottom:12px;padding:6px;background:#f8fafc;border-radius:8px">他現場にある数: '+otherSitesQty+esc(item.unit)+'</div>';
+  }
+  h+='<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:#475569;margin-bottom:6px">📤 持出しを行った人</div>'+holdH+'</div>';
   h+='<div class="action-row">';
   h+='<button class="btn-return" data-id="'+itemId+'" data-type="in" onclick="openAdjustFromBtn(this)">返却</button>';
   h+='<button class="btn-takeout" data-id="'+itemId+'" data-type="out" onclick="openAdjustFromBtn(this)">持出し</button>';
@@ -491,11 +542,11 @@ function openAdjust(type,itemId){
 }
 function renderAdjustModal(){
   var item=findItem(pendId); if(!item)return;
-  var label=pendType==='out'?'持出し':'返却';
-  var maxQ=pendType==='out'?item.qty:(item.total-item.qty);
-  var outTotal=item.total-item.qty;
+  var ci=getCompanyInfo(item);
+  var label=pendType==='out'?'会社→現場 持出し':'現場→会社 返却';
+  var maxQ=pendType==='out'?ci.inCompany:item.qty;
   var h='<div class="modal-title">'+label+'：'+esc(item.name)+'</div>';
-  var subInfo=pendType==='out'?'残数 '+item.qty+esc(item.unit)+' / 総数 '+item.total+esc(item.unit):'持出し中 '+outTotal+esc(item.unit)+' / 総数 '+item.total+esc(item.unit);
+  var subInfo=pendType==='out'?'会社残数 '+ci.inCompany+esc(item.unit)+' → 現場 '+item.qty+esc(item.unit):'現場 '+item.qty+esc(item.unit)+' → 会社残数 '+ci.inCompany+esc(item.unit);
   h+='<div class="modal-sub">'+subInfo+(maxQ>0?' ・ 最大'+maxQ+esc(item.unit):'')+'</div>';
   h+='<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0">';
   h+='<button onclick="adjBy(-1)" style="width:56px;height:56px;border-radius:50%;background:#f1f5f9;border:2px solid #e2e8f0;font-size:26px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;flex-shrink:0">▼</button>';
@@ -518,7 +569,10 @@ function adjBy(d){
   var el=document.getElementById('adj-qty');
   if(el)qVal=Math.max(1,parseInt(el.value)||1);
   qVal=Math.max(1,qVal+d);
-  if(el){el.value=qVal;el.style.border=qVal>(pendType==='out'?findItem(pendId).qty:(findItem(pendId).total-findItem(pendId).qty))?'2px solid #dc2626':'1px solid #e2e8f0';}
+  var item=findItem(pendId);
+  var ci=getCompanyInfo(item);
+  var max=pendType==='out'?ci.inCompany:item.qty;
+  if(el){el.value=qVal;el.style.border=qVal>max?'2px solid #dc2626':'1px solid #e2e8f0';}
 }
 function saveNote(){var e=document.getElementById('adj-note');if(e)window._adjNote=e.value;}
 function closeAdjModal(){window._adjNote='';closeModal();}
@@ -528,10 +582,16 @@ function execAdjust(){
   var ne=document.getElementById('adj-note'), note=ne?ne.value.trim():'';
   var amt=qVal;
   if(amt<=0){toast('数量を入力してください');return;}
-  if(pendType==='out'&&amt>item.qty){toast('在庫が足りません（残'+item.qty+item.unit+'）');return;}
-  var maxReturn=item.total-item.qty;
-  if(pendType==='in'&&amt>maxReturn){toast('返却数が多すぎます（最大'+maxReturn+item.unit+'）');return;}
-  if(pendType==='out')item.qty-=amt; else item.qty+=amt;
+  var ci=getCompanyInfo(item);
+  // 持出し: 会社から現場へ → 現場qty +amt, 会社残数 -amt
+  // 返却: 現場から会社へ → 現場qty -amt, 会社残数 +amt
+  if(pendType==='out'){
+    if(amt>ci.inCompany){toast('会社残数が足りません（残'+ci.inCompany+item.unit+'）');return;}
+    item.qty+=amt;
+  } else {
+    if(amt>item.qty){toast('現場に返却できる工具がありません（現場'+item.qty+item.unit+'）');return;}
+    item.qty-=amt;
+  }
   var now=new Date(), ds=now.getFullYear()+'/'+(now.getMonth()+1)+'/'+now.getDate(), ts=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
   hist.unshift({ts:Date.now(),type:pendType,iid:item.id,name:item.name,site:item.site,amt:amt,user:curUser,note:note,after:item.qty});
   window._adjNote=''; closeModal();
@@ -798,7 +858,7 @@ function delSiteFromBtn(el){showDeleteConfirm('site',el.dataset.id,el.dataset.na
 function openSiteEdit(idx){
   var s=sites[idx];
   var stools=s.tools||[];
-  window._seIdx=idx; window._seKana=''; window._seMergedTools=null;
+  window._seIdx=idx; window._seKana=''; window._seKanaRow=''; window._seMergedTools=null;
   var h='<div class="modal-title">'+(isAdmin?'現場編集：':'工具追加：')+esc(s.name)+'</div>';
   if(isAdmin){
     function mkSel(id,val){var h='<select id="'+id+'" class="sel"><option value="">（未設定）</option>';members.forEach(function(m){if(!m.admin)h+='<option'+(m.name===val?' selected':'')+'>'+esc(m.name)+'</option>';});return h+'</select>';}
@@ -812,33 +872,75 @@ function openSiteEdit(idx){
   h+='<div class="modal-actions" style="margin-top:14px"><button class="btn-cancel" onclick="'+backFn+'">戻る</button><button class="btn-primary" data-idx="'+idx+'" onclick="saveSiteEdit(this)">保存</button></div>';
   showModal(h);
 }
+function getOtherSitesAlloc(tmId, excludeSiteIdx){
+  // 他現場にある数の合計 (items[].qty for sites !== excludeSiteIdx)
+  var excludeSiteId=sites[excludeSiteIdx]?sites[excludeSiteIdx].id:null;
+  var sum=0;
+  items.forEach(function(x){
+    if(x.ref===tmId&&x.site!==excludeSiteId)sum+=x.qty||0;
+  });
+  return sum;
+}
 function renderSiteToolPicker(stools){
   // stools: [{id, qty}]
   var stoolMap={};
   stools.forEach(function(s){if(s&&s.id)stoolMap[s.id]=s.qty||0;});
   var kanas=TM.reduce(function(a,t){(t.yomis||[t.yomi||'']).forEach(function(y){if(y&&a.indexOf(y)<0)a.push(y);});return a;},[]).sort();
+  // 利用可能な行と段
+  var activeRows={};
+  kanas.forEach(function(k){var r=getKanaRow(k);if(r)activeRows[r]=true;});
+  var curRow=window._seKanaRow||'';
   var disp=window._seKana?TM.filter(function(t){return (t.yomis||[t.yomi||'']).indexOf(window._seKana)>=0;}):TM;
   var h='<div style="margin-bottom:4px"><label class="lbl" style="margin-bottom:6px">使用する工具</label>';
-  h+='<div class="kana-wrap" style="margin-bottom:8px">';
-  kanas.forEach(function(k){h+='<button class="kana-btn'+(window._seKana===k?' active':'')+'" data-k="'+esc(k)+'" onclick="window._seKana=this.dataset.k;reRenderSitePicker()">'+esc(k)+'</button>';});
-  if(window._seKana)h+='<button class="kana-btn" onclick="clearSeKana()">✕ 全て</button>';
+  // 行（あかさたな…）
+  h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">';
+  KANA_ROWS.forEach(function(r){
+    if(!activeRows[r.head])return;
+    var active=curRow===r.head;
+    h+='<button class="kana-btn'+(active?' active':'')+'" data-r="'+r.head+'" onclick="setSeKanaRow(this.dataset.r)" style="'+(active?'background:#1a56db;color:#fff;border-color:#1a56db;':'')+'min-width:32px">'+r.head+'</button>';
+  });
+  if(curRow||window._seKana)h+='<button class="kana-btn" onclick="clearSeKana()" style="color:#dc2626;border-color:#fecaca">✕ 全て</button>';
   h+='</div>';
+  // 段（選択行のあいうえお）
+  if(curRow){
+    var row=KANA_ROWS.find(function(r){return r.head===curRow;});
+    if(row){
+      h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;padding:6px;background:#eff6ff;border-radius:8px">';
+      row.chars.forEach(function(c){
+        if(kanas.indexOf(c)<0)return;
+        var active=window._seKana===c;
+        h+='<button class="kana-btn'+(active?' active':'')+'" data-k="'+c+'" onclick="window._seKana=this.dataset.k;reRenderSitePicker()" style="'+(active?'background:#1a56db;color:#fff;border-color:#1a56db;':'background:#fff;')+'min-width:32px">'+c+'</button>';
+      });
+      h+='</div>';
+    }
+  }
   h+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;max-height:220px;overflow-y:auto" id="se-tool-list">';
   disp.forEach(function(t){
     var chk=stoolMap.hasOwnProperty(t.id);
     var qty=chk?stoolMap[t.id]:0;
+    var otherAlloc=getOtherSitesAlloc(t.id,window._seIdx);
+    var available=Math.max(0,t.total-otherAlloc);
     var photo=t.photo||'';
     var img=isPhoto(photo)?'<img src="'+photo+'" style="width:28px;height:28px;border-radius:6px;object-fit:cover;margin-right:9px;flex-shrink:0">':'<div style="width:28px;height:28px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-right:9px">'+esc(photo||'🔧')+'</div>';
     h+='<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9">';
     h+=img;
-    h+='<input type="checkbox" class="se-tool-chk" value="'+t.id+'"'+(chk?' checked':'')+' style="width:16px;height:16px;margin-right:9px;accent-color:#1a56db;flex-shrink:0" onchange="seToolChkChange(this)">';
+    h+='<input type="checkbox" class="se-tool-chk" value="'+t.id+'"'+(chk?' checked':'')+' data-avail="'+available+'" style="width:16px;height:16px;margin-right:9px;accent-color:#1a56db;flex-shrink:0" onchange="seToolChkChange(this)">';
     var tc=t.cat||'工具';var tcStyle=tc==='工具'?'background:#e8f0ff;color:#1241a8':tc==='機械'?'background:#f1f5f9;color:#475569':tc==='保護具'?'background:#f0fdf4;color:#166534':tc==='消耗品'?'background:#fff7ed;color:#9a3412':'background:#fdf4ff;color:#7e22ce';
-    h+='<span style="font-size:13px;color:#1e293b;font-weight:500;flex:1">'+esc(t.name)+'<span style="font-size:9px;'+tcStyle+';padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600">'+esc(tc)+'</span></span>';
-    h+='<input type="number" class="se-tool-qty" data-tid="'+t.id+'" value="'+qty+'" min="0" placeholder="数量"'+(chk?'':' disabled')+' style="width:56px;padding:4px 6px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:600;text-align:center;background:'+(chk?'#fff':'#f1f5f9')+';color:#1e293b;-webkit-appearance:none">';
+    h+='<div style="flex:1;min-width:0">';
+    h+='<div style="font-size:13px;color:#1e293b;font-weight:500">'+esc(t.name)+'<span style="font-size:9px;'+tcStyle+';padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600">'+esc(tc)+'</span></div>';
+    h+='<div style="font-size:9px;color:'+(available===0?'#dc2626':'#94a3b8')+';margin-top:1px">残り '+available+esc(t.unit)+' 利用可能（総数'+t.total+'）</div>';
+    h+='</div>';
+    h+='<input type="number" class="se-tool-qty" data-tid="'+t.id+'" data-avail="'+available+'" value="'+qty+'" min="0" max="'+available+'" placeholder="数量"'+(chk?'':' disabled')+' oninput="onSeToolQtyInput(this)" style="width:60px;padding:4px 6px;border:1px solid #e2e8f0;border-radius:8px;font-size:16px;font-weight:600;text-align:center;background:'+(chk?'#fff':'#f1f5f9')+';color:#1e293b;-webkit-appearance:none">';
     h+='</div>';
   });
   h+='</div></div>';
   return h;
+}
+function onSeToolQtyInput(el){
+  var avail=parseInt(el.dataset.avail)||0;
+  var v=parseInt(el.value)||0;
+  if(v>avail){el.value=avail;toast('利用可能数を超えています（最大'+avail+'）');}
+  if(v<0)el.value=0;
 }
 function seToolChkChange(el){
   var qEl=el.parentElement.querySelector('.se-tool-qty');
@@ -847,7 +949,8 @@ function seToolChkChange(el){
   qEl.style.background=el.checked?'#fff':'#f1f5f9';
   if(el.checked&&(!qEl.value||qEl.value==='0'))qEl.value='1';
 }
-function clearSeKana(){window._seKana='';reRenderSitePicker();}
+function clearSeKana(){window._seKana='';window._seKanaRow='';reRenderSitePicker();}
+function setSeKanaRow(r){window._seKanaRow=r;window._seKana='';reRenderSitePicker();}
 function collectSeTools(){
   // collect {id,qty} from current DOM state
   var result=[];
@@ -897,6 +1000,16 @@ function saveSiteEdit(el){
     window._seMergedTools=null;
   }
   var finalTools=Object.keys(map).map(function(id){return {id:id,qty:map[id]};});
+  // Validate: each tool's site allocation + other sites' allocation must not exceed TM.total
+  for(var ti=0;ti<finalTools.length;ti++){
+    var e=finalTools[ti];
+    var tm=findTM(e.id); if(!tm)continue;
+    var other=getOtherSitesAlloc(e.id,idx);
+    if(e.qty+other>tm.total){
+      toast('「'+tm.name+'」は総数'+tm.total+tm.unit+'を超えます（他現場で'+other+'使用中）');
+      return;
+    }
+  }
   sites[idx].tools=finalTools;
   // apply to items: add missing, remove unchecked, update existing qty
   var siteId=sites[idx].id;
@@ -907,8 +1020,28 @@ function saveSiteEdit(el){
   finalTools.forEach(function(e){
     var tm=findTM(e.id); if(!tm)return;
     var existing=items.find(function(x){return x.site===siteId&&x.ref===e.id;});
-    if(existing){existing.total=tm.total;existing.unit=tm.unit;existing.cat=tm.cat||existing.cat;}
-    else{items.push({id:mkId(),name:tm.name,cat:tm.cat||'工具',site:siteId,unit:tm.unit,total:tm.total,qty:e.qty,mach:false,note:'',photo:tm.photo||'',ref:tm.id});}
+    if(existing){
+      var oldQty=existing.qty;
+      var delta=e.qty-existing.total;
+      existing.total=e.qty;
+      existing.qty=Math.max(0, existing.qty+delta);
+      if(existing.qty>existing.total)existing.qty=existing.total;
+      existing.unit=tm.unit;
+      existing.cat=tm.cat||existing.cat;
+      // 履歴に記録（数量変更分）
+      var diff=existing.qty-oldQty;
+      if(diff!==0){
+        hist.unshift({ts:Date.now(),type:diff>0?'out':'in',iid:existing.id,name:tm.name,site:siteId,amt:Math.abs(diff),user:curUser||'管理者',note:'工具追加',after:existing.qty});
+      }
+    }
+    else{
+      var newItem={id:mkId(),name:tm.name,cat:tm.cat||'工具',site:siteId,unit:tm.unit,total:e.qty,qty:e.qty,mach:false,note:'',photo:tm.photo||'',ref:tm.id};
+      items.push(newItem);
+      // 履歴に記録（初期持出し）
+      if(e.qty>0){
+        hist.unshift({ts:Date.now(),type:'out',iid:newItem.id,name:tm.name,site:siteId,amt:e.qty,user:curUser||'管理者',note:'工具追加',after:e.qty});
+      }
+    }
   });
   closeModal(); toast('現場情報を更新しました'); if(curSiteId)renderContent();
 }
@@ -988,15 +1121,36 @@ function saveMemEdit(){var name=document.getElementById('mem-edit-name').value.t
 // 工具マスター管理
 // ============================================================
 var _tmKana='';
-function openToolMasterModal(){_tmKana='';renderTMModal();}
+var _tmKanaRow='';
+function openToolMasterModal(){_tmKana='';_tmKanaRow='';renderTMModal();}
 function renderTMModal(){
   var kanas=TM.reduce(function(a,t){(t.yomis||[t.yomi||'']).forEach(function(y){if(y&&a.indexOf(y)<0)a.push(y);});return a;},[]).sort();
+  var activeRows={};
+  kanas.forEach(function(k){var r=getKanaRow(k);if(r)activeRows[r]=true;});
   var disp=_tmKana?TM.filter(function(t){return (t.yomis||[t.yomi||'']).indexOf(_tmKana)>=0;}):TM;
   var h='<div class="modal-title">🔧 工具管理（全体）</div><div class="modal-sub">全体の工具・写真・総数を管理します</div>';
-  h+='<div class="kana-wrap" style="margin-bottom:10px">';
-  kanas.forEach(function(k){h+='<button class="kana-btn'+(_tmKana===k?' active':'')+'" data-k="'+esc(k)+'" onclick="_tmKana=this.dataset.k;renderTMModal()">'+esc(k)+'</button>';});
-  if(_tmKana)h+='<button class="kana-btn" onclick="clearTmKanaFilter()">✕ 全て</button>';
+  // 行
+  h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">';
+  KANA_ROWS.forEach(function(r){
+    if(!activeRows[r.head])return;
+    var active=_tmKanaRow===r.head;
+    h+='<button class="kana-btn'+(active?' active':'')+'" data-r="'+r.head+'" onclick="setTmKanaRow(this.dataset.r)" style="'+(active?'background:#1a56db;color:#fff;border-color:#1a56db;':'')+'min-width:32px">'+r.head+'</button>';
+  });
+  if(_tmKanaRow||_tmKana)h+='<button class="kana-btn" onclick="clearTmKanaFilter()" style="color:#dc2626;border-color:#fecaca">✕ 全て</button>';
   h+='</div>';
+  // 段
+  if(_tmKanaRow){
+    var row=KANA_ROWS.find(function(r){return r.head===_tmKanaRow;});
+    if(row){
+      h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;padding:6px;background:#eff6ff;border-radius:8px">';
+      row.chars.forEach(function(c){
+        if(kanas.indexOf(c)<0)return;
+        var active=_tmKana===c;
+        h+='<button class="kana-btn'+(active?' active':'')+'" data-k="'+c+'" onclick="setTmKana(this.dataset.k)" style="'+(active?'background:#1a56db;color:#fff;border-color:#1a56db;':'background:#fff;')+'min-width:32px">'+c+'</button>';
+      });
+      h+='</div>';
+    }
+  }
   h+='<div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:14px;overflow:hidden;max-height:50vh;overflow-y:auto">';
   if(!disp.length){h+='<div style="padding:24px;text-align:center;color:#94a3b8;font-size:12px">該当する工具がありません</div>';}
   disp.forEach(function(t){
@@ -1013,7 +1167,9 @@ function renderTMModal(){
   h+='<div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">← 戻る</button></div>';
   showModal(h);
 }
-function clearTmKanaFilter(){_tmKana='';renderTMModal();}
+function clearTmKanaFilter(){_tmKana='';_tmKanaRow='';renderTMModal();}
+function setTmKanaRow(r){_tmKanaRow=r;_tmKana='';renderTMModal();}
+function setTmKana(k){_tmKana=k;renderTMModal();}
 function openTMEdit(el){
   var id=el.dataset.tmid, t=findTM(id); if(!t)return;
   var photo=t.photo||'';
@@ -1053,9 +1209,8 @@ function saveTMEdit(el){
   var yomiChks=document.querySelectorAll('.kana-btn.active[data-k]');var yomisArr=Array.from(yomiChks).map(function(b){return b.dataset.k;});
   if(!yomisArr.length){toast('読みを1つ以上選択してください');return;}
   var newCat=document.getElementById('tme-cat').value||'工具';
-  var newPhoto=window._tmePhotoData||t.photo||'';
-  t.name=name; t.cat=newCat; t.yomis=yomisArr; t.yomi=yomisArr[0]; t.unit=document.getElementById('tme-unit').value||'個'; t.total=parseInt(document.getElementById('tme-total').value)||0; t.photo=newPhoto;
-  items.forEach(function(x){if(x.ref===id){x.name=name;x.cat=newCat;x.photo=newPhoto;}});
+  t.name=name; t.cat=newCat; t.yomis=yomisArr; t.yomi=yomisArr[0]; t.unit=document.getElementById('tme-unit').value||'個'; t.total=parseInt(document.getElementById('tme-total').value)||0; t.photo=window._tmePhotoData||'';
+  if(oldName!==name||newCat){items.forEach(function(x){if(x.ref===id){x.name=name;x.cat=newCat;}});}
   toast('更新しました'); window._tmePhotoData=''; renderTMModal();
 }
 function deleteTMFromBtn(el){var t=findTM(el.dataset.tmid);if(t)showDeleteConfirm('tm',el.dataset.tmid,t.name);}
